@@ -6,4 +6,4 @@ title: "Forside"
 
 Dette er min forside.
 
-[My Project](/projects/mit-projekt/)
+[MyGarage](/projects/mit-projekt/)
