@@ -18,7 +18,7 @@ public class ServiceRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private LocalDate date;
     private String type;
