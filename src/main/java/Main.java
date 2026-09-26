@@ -1,11 +1,8 @@
-import config.SessionConfig;
-import config.ThymeleafConfig;
 import controllers.CarController;
 import controllers.UserController;
 import dao.CarDao;
 import dao.UserDao;
 import io.javalin.Javalin;
-import io.javalin.rendering.template.JavalinThymeleaf;
 
 public class Main {
     public static void main(String[] args) {
