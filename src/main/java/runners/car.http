@@ -1,0 +1,3 @@
+### GET all cars
+GET http://localhost:7070/cars
+Content-Type: application/json
