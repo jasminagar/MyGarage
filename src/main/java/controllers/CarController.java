@@ -17,7 +17,7 @@ public class CarController {
     public void addRoutes(Javalin app) {
         app.get("/cars", ctx -> getAllCars(ctx));
         app.get("/cars/{carId}", ctx -> getCarById(ctx));
-        app.get("/cars/{userId}", ctx -> getCarByUserId(ctx));
+        //app.get("/cars/{userId}", ctx -> getCarByUserId(ctx));
         app.post("/cars/create", ctx -> createCar(ctx));
         app.put("/cars/update/{carId}", ctx -> updateCar(ctx));
         app.delete("/cars/delete", ctx -> deletecar(ctx));
@@ -29,16 +29,19 @@ public class CarController {
     }
 
     private void getCarById(Context context) {
+
         Integer id = Integer.parseInt(context.pathParam("carId"));
+
         Car car = carDao.findCarById(id);
 
         if (car == null) {
+
             context.status(404);
-            context.json("Car not found");
+            context.json("Car not found/null");
             return;
         }
 
-        context.json(car);
+        context.result("Found car " + car.getRegistrationNumber());
     }
 
     private void getCarByUserId(Context context){

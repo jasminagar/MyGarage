@@ -4,6 +4,7 @@ import config.HibernateConfig;
 import entities.Car;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
@@ -30,12 +31,16 @@ public class CarDao implements ICarDao{
         }
     }
 
-    @Override
     public Car findCarById(Integer id) {
         EntityManager em = emf.createEntityManager();
 
         try {
-            return em.find(Car.class, id);
+            Car car = em.find(Car.class, id);
+
+            System.out.println("Looking for ID: " + id);
+            System.out.println("Result: " + car);
+
+            return car;
         } finally {
             em.close();
         }
