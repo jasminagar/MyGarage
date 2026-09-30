@@ -1,7 +1,9 @@
 package services;
 
+import dto.MotInfoDTO;
 import dto.VehicleDTO;
 import entities.Car;
+import entities.ServiceRecord;
 
 import java.time.LocalDate;
 
@@ -43,5 +45,35 @@ public class ConvertToEntity {
         }
 
         return car;
+    }
+
+    public ServiceRecord convertToServiceRecord(VehicleDTO vehicleDTO, Car car) {
+        if (vehicleDTO.getMotInfo() == null) {
+            return null;
+        }
+
+        MotInfoDTO motInfo = vehicleDTO.getMotInfo();
+
+        ServiceRecord serviceRecord = new ServiceRecord();
+
+        serviceRecord.setDate(
+                LocalDate.parse(motInfo.getDate())
+        );
+
+        serviceRecord.setType(
+                motInfo.getType()
+        );
+
+        serviceRecord.setMileage(
+                motInfo.getMileage()
+        );
+
+        serviceRecord.setDescription(
+                motInfo.getResult()
+        );
+
+        serviceRecord.setCar(car);
+
+        return serviceRecord;
     }
 }

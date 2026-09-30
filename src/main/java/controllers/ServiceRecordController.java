@@ -1,28 +1,54 @@
 package controllers;
 
 import dao.ServiceRecordDao;
+import entities.Car;
 import entities.ServiceRecord;
+import entities.User;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import services.ImportVehicleService;
 
 import java.util.List;
 
 public class ServiceRecordController {
 
     private final ServiceRecordDao serviceRecordDao;
+    private  final ImportVehicleService importVehicleService;
 
-    public ServiceRecordController(ServiceRecordDao serviceRecordDao) {
+    public ServiceRecordController(ServiceRecordDao serviceRecordDao, ImportVehicleService importVehicleService) {
+
         this.serviceRecordDao = serviceRecordDao;
+        this.importVehicleService = importVehicleService;
     }
 
     public void addRoutes(Javalin app) {
         app.post("/service-records/create", ctx -> createServiceRecord(ctx));
+        app.post("/service-records/import/{registrationNumber}", ctx -> importVehicle(ctx));
         app.get("/service-records", ctx -> getAllServiceRecords(ctx));
         app.get("/service-records/{id}", ctx -> getServiceRecordById(ctx));
         app.get("/service-records/car/{carId}", ctx -> getServiceRecordsByCarId(ctx));
         app.get("/service-records/car/{carId}/latest", ctx -> getServiceRecordsByCarIdOrderByDate(ctx));
         app.put("/service-records/update/{id}", ctx -> updateServiceRecord(ctx));
         app.delete("/service-records/delete/{id}", ctx -> deleteServiceRecord(ctx));
+    }
+
+    private void importVehicle(Context context) {
+
+        String registrationNumber =
+                context.pathParam("registrationNumber");
+
+        // Midlertidigt
+        User user = new User();
+        user.setId(1);
+
+        Car importedCar =
+                importVehicleService.ImportVehicle(
+                        registrationNumber,
+                        user
+                );
+
+        context.status(201);
+        context.json(importedCar);
     }
 
     private void createServiceRecord(Context context) {

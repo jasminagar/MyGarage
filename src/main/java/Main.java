@@ -1,10 +1,15 @@
 import controllers.CarController;
+import controllers.ServiceRecordController;
 import controllers.UserController;
 import dao.CarDao;
+import dao.ServiceRecordDao;
 import dao.UserDao;
 import entities.Car;
 import entities.User;
 import io.javalin.Javalin;
+import services.ConvertToEntity;
+import services.ImportVehicleService;
+import services.VehicleApiReader;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,12 +17,18 @@ public class Main {
 
         CarDao carDao = new CarDao();
         UserDao userDao = new UserDao();
+        ServiceRecordDao serviceRecordDao = new ServiceRecordDao();
+        VehicleApiReader vehicleApiReader = new VehicleApiReader();
+        ConvertToEntity converter = new ConvertToEntity();
+        ImportVehicleService importVehicleService = new ImportVehicleService(vehicleApiReader, converter, carDao, serviceRecordDao);
 
         CarController carController = new CarController(carDao);
         UserController userController = new UserController(userDao);
+        ServiceRecordController serviceRecordController = new ServiceRecordController(serviceRecordDao, importVehicleService);
 
         carController.addRoutes(app);
         userController.addRoutes(app);
+        serviceRecordController.addRoutes(app);
 
         app.start(7070);
 
