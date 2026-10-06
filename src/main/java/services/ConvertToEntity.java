@@ -29,7 +29,6 @@ public class ConvertToEntity {
         car.setSeats(vehicleDTO.getSeats());
         car.setTotalWeight(vehicleDTO.getTotalWeight());
 
-        if (vehicleDTO.getMotInfo() != null) {
             if (vehicleDTO.getMotInfo() != null) {
                 car.setMileage(vehicleDTO.getMotInfo().getMileage());
                 car.setLastInspectionDate(
@@ -42,7 +41,6 @@ public class ConvertToEntity {
                         LocalDate.parse(vehicleDTO.getMotInfo().getNextInspectionDate())
                 );
             }
-        }
 
         return car;
     }

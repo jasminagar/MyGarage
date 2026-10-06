@@ -75,7 +75,7 @@ class VehicleImportServiceTest {
                 .thenReturn(serviceRecord);
 
         Car result =
-                vehicleImportService.ImportVehicle(
+                vehicleImportService.importVehicle(
                         registrationNumber,
                         user
                 );

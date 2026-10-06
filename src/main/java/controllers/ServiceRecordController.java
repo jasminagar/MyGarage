@@ -42,7 +42,7 @@ public class ServiceRecordController {
         user.setId(1);
 
         Car importedCar =
-                importVehicleService.ImportVehicle(
+                importVehicleService.importVehicle(
                         registrationNumber,
                         user
                 );

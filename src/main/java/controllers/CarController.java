@@ -20,71 +20,138 @@ public class CarController {
         //app.get("/cars/{userId}", ctx -> getCarByUserId(ctx));
         app.post("/cars/create", ctx -> createCar(ctx));
         app.put("/cars/update/{carId}", ctx -> updateCar(ctx));
-        app.delete("/cars/delete", ctx -> deletecar(ctx));
+        app.delete("/cars/delete/{carId}", ctx -> deletecar(ctx));
     }
 
     private void getAllCars(Context ctx) {
-        List<Car> allCars = carDao.findAllcars();
-        ctx.json(allCars);
-    }
-
-    private void getCarById(Context context) {
-
-        Integer id = Integer.parseInt(context.pathParam("carId"));
-
-        Car car = carDao.findCarById(id);
-
-        if (car == null) {
-
-            context.status(404);
-            context.json("Car not found/null");
-            return;
+        try {
+            List<Car> allCars = carDao.findAllcars();
+            ctx.status(200);
+            ctx.json(allCars);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json("Could not retrieve cars");
         }
-
-        context.result("Found car " + car.getRegistrationNumber());
     }
 
-    private void getCarByUserId(Context context){
-        Integer userId = Integer.parseInt(context.pathParam("userId"));
+    private void getCarById(Context ctx) {
+        try {
+            Integer carId = Integer.parseInt(ctx.pathParam("carId"));
+            Car car = carDao.findCarById(carId);
 
-        if (userId == null){
-            context.status(404);
-            context.json("User not found");
+            if (car == null) {
+                ctx.status(404);
+                ctx.json("Car not found");
+                return;
+            }
+
+            ctx.status(200);
+            ctx.json(car);
+
+        } catch (NumberFormatException e) {
+            ctx.status(400);
+            ctx.json("Invalid car ID");
+
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json("Could not retrieve car");
         }
-        List<Car> cars = carDao.findCarByUserId(userId);
+    }
 
-        if (cars.isEmpty()){
-            context.json("You have no cars yet");
+    private void getCarByUserId(Context ctx) {
+        try {
+            Integer userId = Integer.parseInt(ctx.pathParam("userId"));
+            List<Car> cars = carDao.findCarByUserId(userId);
+
+            if (cars.isEmpty()) {
+                ctx.status(404);
+                ctx.json("No cars found for this user");
+                return;
+            }
+
+            ctx.status(200);
+            ctx.json(cars);
+
+        } catch (NumberFormatException e) {
+            ctx.status(400);
+            ctx.json("Invalid user ID");
+
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json("Could not retrieve cars for user");
         }
-        context.json(cars);
     }
 
-    private void createCar(Context context){
-        Car car = context.bodyAsClass(Car.class);
-        Car createdCar = carDao.createCar(car);
-        context.status(201);
-        context.json(createdCar);
-    }
-
-    private void updateCar(Context context){
-        Integer carId = Integer.parseInt(context.pathParam("carId"));
-        Car car = context.bodyAsClass(Car.class);
-        car.setId(carId);
-        Car updatedCar = carDao.updateCar(car);
-        context.json(updatedCar);
-    }
-
-    private void deletecar(Context context){
-        Integer carId = Integer.parseInt(context.pathParam("carId"));
-        Car car = carDao.findCarById(carId);
-
-        if(car == null){
-            context.status(404);
-            context.json("Car not found");
+    private void createCar(Context ctx) {
+        try {
+            Car car = ctx.bodyAsClass(Car.class);
+            Car createdCar = carDao.createCar(car);
+            ctx.status(201);
+            ctx.json(createdCar);
+        } catch (io.javalin.http.BadRequestResponse e) {
+            ctx.status(400);
+            ctx.json("Invalid car data");
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json("Could not create car");
         }
+    }
 
-        carDao.deleteCar(car);
-        context.status(204);
+    private void updateCar(Context ctx) {
+        try {
+            Integer carId = Integer.parseInt(ctx.pathParam("carId"));
+            Car existingCar = carDao.findCarById(carId);
+
+            if (existingCar == null) {
+                ctx.status(404);
+                ctx.json("Car not found");
+                return;
+            }
+
+            Car car = ctx.bodyAsClass(Car.class);
+            car.setId(carId);
+
+            Car updatedCar = carDao.updateCar(car);
+
+            ctx.status(200);
+            ctx.json(updatedCar);
+
+        } catch (NumberFormatException e) {
+            ctx.status(400);
+            ctx.json("Invalid car ID");
+
+        } catch (io.javalin.http.BadRequestResponse e) {
+            ctx.status(400);
+            ctx.json("Invalid car data");
+
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json("Could not update car");
+        }
+    }
+
+    private void deletecar(Context ctx) {
+        try {
+            Integer carId = Integer.parseInt(ctx.pathParam("carId"));
+            Car car = carDao.findCarById(carId);
+
+            if (car == null) {
+                ctx.status(404);
+                ctx.json("Car not found");
+                return;
+            }
+
+            carDao.deleteCar(car);
+            ctx.status(204);
+
+        } catch (NumberFormatException e) {
+            ctx.status(400);
+            ctx.json("Invalid car ID");
+
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json("Could not delete car");
+        }
     }
 
 }

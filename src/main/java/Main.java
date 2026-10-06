@@ -32,6 +32,8 @@ public class Main {
 
         app.start(7070);
 
+        System.out.println(vehicleApiReader.getVehicle("cr48908"));
+
 
 //            Car car = new Car();
 //

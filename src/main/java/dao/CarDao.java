@@ -17,15 +17,18 @@ public class CarDao implements ICarDao{
 
         try {
             em.getTransaction().begin();
-
             em.persist(car);
-
             em.getTransaction().commit();
 
             return car;
+
         } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new RuntimeException(
+                    "Could not create car in database", e
+            );
         } finally {
             em.close();
         }
@@ -37,14 +40,17 @@ public class CarDao implements ICarDao{
         try {
             Car car = em.find(Car.class, id);
 
-            System.out.println("Looking for ID: " + id);
-            System.out.println("Result: " + car);
-
             return car;
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Could not find car with id: " + id, e
+            );
         } finally {
             em.close();
         }
     }
+
 
     @Override
     public List<Car> findAllcars() {
@@ -55,6 +61,10 @@ public class CarDao implements ICarDao{
                     "SELECT c FROM Car c",
                     Car.class
             ).getResultList();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not retrieve cars from database", e);
+
         } finally {
             em.close();
         }
@@ -66,15 +76,18 @@ public class CarDao implements ICarDao{
 
         try {
             em.getTransaction().begin();
-
             Car updatedCar = em.merge(car);
-
             em.getTransaction().commit();
 
             return updatedCar;
+
         } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new RuntimeException(
+                    "Could not update car with id: " + car.getId(), e
+            );
         } finally {
             em.close();
         }
@@ -86,14 +99,17 @@ public class CarDao implements ICarDao{
 
         try {
             em.getTransaction().begin();
-
             Car managedCar = em.merge(car);
             em.remove(managedCar);
-
             em.getTransaction().commit();
+
         } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new RuntimeException(
+                    "Could not delete car with id: " + car.getId(), e
+            );
         } finally {
             em.close();
         }
@@ -110,9 +126,13 @@ public class CarDao implements ICarDao{
                     )
                     .setParameter("userId", userId)
                     .getResultList();
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Could not retrieve cars for user with id: " + userId, e
+            );
         } finally {
             em.close();
         }
-
-
-    }}
+    }
+}

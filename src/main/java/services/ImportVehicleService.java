@@ -26,7 +26,7 @@ public class ImportVehicleService {
         this.serviceRecordDao = serviceRecordDao;
     }
 
-    public Car ImportVehicle(String registrationNumber, User user){
+    public Car importVehicle(String registrationNumber, User user){
         String json = apiReader.getVehicle(registrationNumber);
         VehicleDTO vehicleDTO = apiReader.convertFromJson(json);
         Car car = converter.convertToCarEntity(vehicleDTO);
@@ -37,7 +37,6 @@ public class ImportVehicleService {
         if (serviceRecord != null){
             serviceRecordDao.createServiceRecord(serviceRecord);
         }
-
         return savedCar;
     }
 }

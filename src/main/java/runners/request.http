@@ -1,0 +1,2 @@
+POST http://localhost:7070/service-records/import/CR48908
+Content-Type: application/json
