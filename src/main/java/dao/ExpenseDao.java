@@ -1,6 +1,7 @@
 package dao;
 
 import config.HibernateConfig;
+import entities.Car;
 import entities.Expense;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -12,11 +13,20 @@ public class ExpenseDao implements IExpenseDao{
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
     @Override
-    public Expense createExpense(Expense expense) {
+    public Expense createExpense(Integer carId, Expense expense) {
         EntityManager em = emf.createEntityManager();
 
         try {
             em.getTransaction().begin();
+
+            Car car  = em.find(Car.class, carId);
+
+            if (car == null){
+                em.getTransaction().rollback();
+                return null;
+            }
+
+            expense.setCar(car);
 
             em.persist(expense);
 

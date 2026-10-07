@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IExpenseDao {
 
-    Expense createExpense(Expense expense);
+    Expense createExpense(Integer carId, Expense expense);
 
     Expense findExpenseById(Integer id);
 

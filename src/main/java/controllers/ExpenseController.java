@@ -16,7 +16,7 @@ public class ExpenseController {
     }
 
     public void addRoutes(Javalin app) {
-        app.post("/expenses/create", this::createExpense);
+        app.post("/expenses/{carId}/create", this::createExpense);
         app.get("/expenses", this::getAllExpenses);
         app.get("/expenses/{id}", this::getExpenseById);
         app.get("/expenses/car/{carId}", this::getExpensesByCarId);
@@ -27,11 +27,19 @@ public class ExpenseController {
     }
 
     private void createExpense(Context context) {
+        Integer carId = Integer.parseInt(context.pathParam("carId"));
+
         Expense expense =
                 context.bodyAsClass(Expense.class);
 
         Expense createdExpense =
-                expenseDao.createExpense(expense);
+                expenseDao.createExpense(carId, expense);
+
+        if (createdExpense == null){
+            context.status(404);
+            context.result("Car not found");
+            return;
+        }
 
         context.status(201);
         context.json(createdExpense);

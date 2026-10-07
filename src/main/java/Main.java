@@ -1,11 +1,5 @@
-import controllers.CarController;
-import controllers.ModificationController;
-import controllers.ServiceRecordController;
-import controllers.UserController;
-import dao.CarDao;
-import dao.ModificationDao;
-import dao.ServiceRecordDao;
-import dao.UserDao;
+import controllers.*;
+import dao.*;
 import entities.Modification;
 import io.javalin.Javalin;
 import security.SecurityController;
@@ -22,6 +16,7 @@ public class Main {
         UserDao userDao = new UserDao();
         ServiceRecordDao serviceRecordDao = new ServiceRecordDao();
         ModificationDao modificationDAO = new ModificationDao();
+        ExpenseDao expenseDao = new ExpenseDao();
         VehicleApiReader vehicleApiReader = new VehicleApiReader();
         ConvertToEntity converter = new ConvertToEntity();
         ImportVehicleService importVehicleService = new ImportVehicleService(vehicleApiReader, converter, carDao, serviceRecordDao);
@@ -31,6 +26,7 @@ public class Main {
         ServiceRecordController serviceRecordController = new ServiceRecordController(serviceRecordDao, importVehicleService);
         SecurityController securityController = new SecurityController(userDao);
         ModificationController modificationController = new ModificationController(modificationDAO);
+        ExpenseController expenseController = new ExpenseController(expenseDao);
 
         SecurityRoutes securityRoutes = new SecurityRoutes(securityController);
 
@@ -40,6 +36,7 @@ public class Main {
         userController.addRoutes(app);
         serviceRecordController.addRoutes(app);
         modificationController.addRoutes(app);
+        expenseController.addRoutes(app);
 
         app.start(7070);
 

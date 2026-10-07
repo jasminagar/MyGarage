@@ -33,3 +33,14 @@ Content-Type: application/json
   "cost": 2500,
   "description": "Nye for- og bagbremser"
 }
+
+###
+POST http://localhost:7070/expenses/2/create
+Content-Type: application/json
+
+{
+  "date": "2026-10-07",
+  "category": "FUEL",
+  "amount": 600,
+  "description": "Tanket bilen"
+}
