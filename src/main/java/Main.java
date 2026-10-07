@@ -7,6 +7,8 @@ import dao.UserDao;
 import entities.Car;
 import entities.User;
 import io.javalin.Javalin;
+import security.SecurityController;
+import security.SecurityRoutes;
 import services.ConvertToEntity;
 import services.ImportVehicleService;
 import services.VehicleApiReader;
@@ -25,6 +27,11 @@ public class Main {
         CarController carController = new CarController(carDao);
         UserController userController = new UserController(userDao);
         ServiceRecordController serviceRecordController = new ServiceRecordController(serviceRecordDao, importVehicleService);
+        SecurityController securityController = new SecurityController(userDao);
+
+        SecurityRoutes securityRoutes = new SecurityRoutes(securityController);
+
+        securityRoutes.addRoutes(app);
 
         carController.addRoutes(app);
         userController.addRoutes(app);
@@ -32,7 +39,7 @@ public class Main {
 
         app.start(7070);
 
-        System.out.println(vehicleApiReader.getVehicle("cr48908"));
+      //  System.out.println(vehicleApiReader.getVehicle("cr48908"));
 
 
 //            Car car = new Car();

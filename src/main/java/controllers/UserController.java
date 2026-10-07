@@ -15,18 +15,18 @@ public class UserController {
     }
 
     public void addRoutes(Javalin app){
-        app.post("/user/create", ctx -> createUser(ctx));
+        //app.post("/user/create", ctx -> createUser(ctx));
         app.get("/users/{id}", ctx -> getUserById(ctx));
         app.put("/users/update/{id}", ctx -> updateUser(ctx));
         app.delete("users/delete", ctx -> deleteUser(ctx));
     }
 
-    private void createUser(Context context){
-        User user  = context.bodyAsClass(User.class);
-        User createdUser = userDao.createUser(user);
-        context.status(201);
-        context.json(createdUser);
-    }
+//    private void createUser(Context context, String password){
+//        User user  = context.bodyAsClass(User.class);
+//        User createdUser = userDao.createUser(user, password);
+//        context.status(201);
+//        context.json(createdUser);
+//    }
 
     private void getUserById(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));

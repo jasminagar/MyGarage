@@ -10,5 +10,6 @@ public class EntityRegistry {
         configuration.addAnnotatedClass(Modification.class);
         configuration.addAnnotatedClass(ServiceRecord.class);
         configuration.addAnnotatedClass(User.class);
+        configuration.addAnnotatedClass(Role.class);
     }
 }

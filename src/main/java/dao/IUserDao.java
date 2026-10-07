@@ -4,7 +4,7 @@ import entities.User;
 
 public interface IUserDao {
 
-    User createUser(User user);
+   // User createUser(User user);
 
     User findUserById(Integer id);
 

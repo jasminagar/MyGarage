@@ -1,2 +1,22 @@
 POST http://localhost:7070/service-records/import/CR48908
 Content-Type: application/json
+
+###
+
+POST http://localhost:7070/auth/register
+Content-Type: application/json
+
+{
+  "username": "bob6",
+  "password": "1234"
+}
+
+###
+
+POST http://localhost:7070/auth/login
+Content-Type: application/json
+
+{
+"username": "bob3",
+"password": "1234"
+}
