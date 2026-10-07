@@ -4,6 +4,7 @@ import dao.ModificationDao;
 import entities.Modification;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import services.ConvertToEntity;
 
 import java.util.List;
 
@@ -16,8 +17,7 @@ public class ModificationController {
     }
 
     public void addRoutes(Javalin app) {
-        app.post("/modifications/create", this::createModification);
-        app.get("/modifications", this::getAllModifications);
+        app.post("/cars/{carId}/modifications", this::createModification);
         app.get("/modifications/{id}", this::getModificationById);
         app.get("/modifications/car/{carId}", this::getModificationsByCarId);
         app.put("/modifications/update/{id}", this::updateModification);
@@ -25,21 +25,17 @@ public class ModificationController {
     }
 
     private void createModification(Context context) {
+
+        Integer carId = Integer.parseInt(context.pathParam("carId"));
+
         Modification modification =
                 context.bodyAsClass(Modification.class);
 
         Modification createdModification =
-                modificationDao.createModification(modification);
+                modificationDao.createModification(carId, modification);
 
         context.status(201);
         context.json(createdModification);
-    }
-
-    private void getAllModifications(Context context) {
-        List<Modification> modifications =
-                modificationDao.findAllModifications();
-
-        context.json(modifications);
     }
 
     private void getModificationById(Context context) {

@@ -1,6 +1,7 @@
 package dao;
 
 import config.HibernateConfig;
+import entities.Car;
 import entities.Modification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -11,11 +12,19 @@ public class ModificationDao implements IModificationDao{
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
     @Override
-    public Modification createModification(Modification modification) {
+    public Modification createModification(Integer carId, Modification modification) {
         EntityManager em = emf.createEntityManager();
 
         try {
             em.getTransaction().begin();
+
+            Car car = em.find(Car.class, carId);
+
+            if (car == null){
+                return null;
+            }
+
+            modification.setCar(car);
 
             em.persist(modification);
 
@@ -38,20 +47,6 @@ public class ModificationDao implements IModificationDao{
 
         try {
             return em.find(Modification.class, id);
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public List<Modification> findAllModifications() {
-        EntityManager em = emf.createEntityManager();
-
-        try {
-            return em.createQuery(
-                    "SELECT m FROM Modification m",
-                    Modification.class
-            ).getResultList();
         } finally {
             em.close();
         }
