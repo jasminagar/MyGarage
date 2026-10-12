@@ -1,6 +1,5 @@
 package security;
 
-import dto.UserDTO;
 import entities.Role;
 import entities.User;
 
@@ -10,7 +9,7 @@ public interface ISecurityDAO {
 
     User createUser(String username, String password);
 
-    Role createRole(String role);
+    Role createRole(EnumRoles role);
 
-    User addUserRole(String username, String role);
+    User addUserRole(String username, EnumRoles role);
 }

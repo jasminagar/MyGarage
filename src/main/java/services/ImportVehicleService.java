@@ -28,6 +28,7 @@ public class ImportVehicleService {
 
     public Car importVehicle(String registrationNumber, User user){
         String json = apiReader.getVehicle(registrationNumber);
+        //Bruger jackson objectmapper til at læse json data og mappe dem til felterne i vehicleDTO.
         VehicleDTO vehicleDTO = apiReader.convertFromJson(json);
         Car car = converter.convertToCarEntity(vehicleDTO);
         car.setUser(user);

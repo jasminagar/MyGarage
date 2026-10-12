@@ -1,36 +1,54 @@
 package dao;
 
 import config.HibernateConfig;
-import dto.UserDTO;
 import entities.Role;
 import entities.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import security.ISecurityDAO;
+import security.EnumRoles;
 
 public class UserDao implements IUserDao, ISecurityDAO {
 
     private final EntityManagerFactory emf =
             HibernateConfig.getEntityManagerFactory();
 
+    //Henter bruger og rolle før før em lukker. role er lazyloaded, så roller skal i mens session stadig er åben.
+    //Ellers giver user.getRolesAsString LazyInitializationException.
+    //Henter derfor bruger sammen med user, og genbruger bcrypt verifikation. !user.verifyPassword(password)
     @Override
     public User getVerifiedUser(String username, String password) {
+        //Opretter em som jeg bruger til forespørgsler til databasen.
+        //Jeg bruger jpa og hibernate til at håndtere forbindelen mellem mine java objekter og databasen.
+        EntityManager em = emf.createEntityManager();
 
-        User user = findUserByUsername(username);
+        //Bruger try til at samle database operationer, så jeg kan sikre at em bliver lukket, også selvom koden fejler.
+        try {
+            //JPQL forespørgsel.
+            User user = em.createQuery(
+                            "SELECT DISTINCT u FROM User u " +
+                                    "LEFT JOIN FETCH u.roles " +
+                                    "WHERE u.username = :username", //Begrænser resultatet til bruger med angivet brugernavn.
+                            User.class //Fortæller hibernate at resultat skal være af typen user.
+                    )
+                    .setParameter("username", username) //Binder username parameter til :username.
+                    //Håndterer resultat.
+                    .getResultStream()//Giver adgang til resultat med streams.
+                    .findFirst()//Henter det første resultat der findes.
+                    .orElse(null);
 
-        if (user == null) {
-            return null;
+            if (user == null || !user.verifyPassword(password)) {
+                return null;
+            }
+
+            return user;
+        } finally {
+            em.close();
         }
-
-        if (!user.verifyPassword(password)) {
-            return null;
-        }
-
-        return user;
     }
 
     @Override
-    public Role createRole(String role) {
+    public Role createRole(EnumRoles role) {
 
         EntityManager em = emf.createEntityManager();
 
@@ -57,7 +75,7 @@ public class UserDao implements IUserDao, ISecurityDAO {
     }
 
     @Override
-    public User addUserRole(String username, String role) {
+    public User addUserRole(String username, EnumRoles role) {
 
         EntityManager em = emf.createEntityManager();
 
@@ -127,7 +145,7 @@ public class UserDao implements IUserDao, ISecurityDAO {
                             "SELECT r FROM Role r WHERE r.role = :role",
                             Role.class
                     )
-                    .setParameter("role", "USER")
+                    .setParameter("role", EnumRoles.USER)
                     .getSingleResult();
 
             user.addRole(userRole);

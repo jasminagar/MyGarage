@@ -7,6 +7,8 @@ import io.javalin.http.Context;
 
 import java.util.List;
 
+import static io.javalin.apibuilder.ApiBuilder.*;
+
 public class ExpenseController {
 
     private final ExpenseDao expenseDao;
@@ -15,15 +17,15 @@ public class ExpenseController {
         this.expenseDao = expenseDao;
     }
 
-    public void addRoutes(Javalin app) {
-        app.post("/expenses/{carId}/create", this::createExpense);
-        app.get("/expenses", this::getAllExpenses);
-        app.get("/expenses/{id}", this::getExpenseById);
-        app.get("/expenses/car/{carId}", this::getExpensesByCarId);
-        app.get("/expenses/car/{carId}/category/{category}", this::getExpensesByCarIdAndCategory);
-        app.get("/expenses/car/{carId}/total", this::getTotalExpensesForCar);
-        app.put("/expenses/update/{id}", this::updateExpense);
-        app.delete("/expenses/delete/{id}", this::deleteExpense);
+    public void addRoutes() {
+        post("/expenses/{carId}/create", this::createExpense);
+        get("/expenses", this::getAllExpenses);
+        get("/expenses/{id}", this::getExpenseById);
+        get("/expenses/car/{carId}", this::getExpensesByCarId);
+        get("/expenses/car/{carId}/category/{category}", this::getExpensesByCarIdAndCategory);
+        get("/expenses/car/{carId}/total", this::getTotalExpensesForCar);
+        put("/expenses/update/{id}", this::updateExpense);
+        delete("/expenses/delete/{id}", this::deleteExpense);
     }
 
     private void createExpense(Context context) {

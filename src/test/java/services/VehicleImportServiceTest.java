@@ -44,7 +44,7 @@ class VehicleImportServiceTest {
         String registrationNumber = "EC74058";
         String json = "{\"registration_number\":\"EC74058\"}";
 
-        User user = new User(2, "test");
+        User user = new User("test", "test");
 
         VehicleDTO vehicleDTO = new VehicleDTO();
 

@@ -8,7 +8,4 @@ public interface ISecurityController {
 
     void register(Context ctx);
 
-    void authenticate(Context ctx);
-
-    void authorize(Context ctx);
 }

@@ -10,6 +10,9 @@ import services.ImportVehicleService;
 
 import java.util.List;
 
+import static io.javalin.apibuilder.ApiBuilder.delete;
+import static io.javalin.apibuilder.ApiBuilder.get;
+
 public class ServiceRecordController {
 
     private final ServiceRecordDao serviceRecordDao;
@@ -21,45 +24,12 @@ public class ServiceRecordController {
         this.importVehicleService = importVehicleService;
     }
 
-    public void addRoutes(Javalin app) {
-        app.post("/service-records/create", ctx -> createServiceRecord(ctx));
-        app.post("/service-records/import/{registrationNumber}", ctx -> importVehicle(ctx));
-        app.get("/service-records", ctx -> getAllServiceRecords(ctx));
-        app.get("/service-records/{id}", ctx -> getServiceRecordById(ctx));
-        app.get("/service-records/car/{carId}", ctx -> getServiceRecordsByCarId(ctx));
-        app.get("/service-records/car/{carId}/latest", ctx -> getServiceRecordsByCarIdOrderByDate(ctx));
-        app.put("/service-records/update/{id}", ctx -> updateServiceRecord(ctx));
-        app.delete("/service-records/delete/{id}", ctx -> deleteServiceRecord(ctx));
-    }
-
-    private void importVehicle(Context context) {
-
-        String registrationNumber =
-                context.pathParam("registrationNumber");
-
-        // Midlertidigt
-        User user = new User();
-        user.setId(1);
-
-        Car importedCar =
-                importVehicleService.importVehicle(
-                        registrationNumber,
-                        user
-                );
-
-        context.status(201);
-        context.json(importedCar);
-    }
-
-    private void createServiceRecord(Context context) {
-        ServiceRecord serviceRecord =
-                context.bodyAsClass(ServiceRecord.class);
-
-        ServiceRecord createdServiceRecord =
-                serviceRecordDao.createServiceRecord(serviceRecord);
-
-        context.status(201);
-        context.json(createdServiceRecord);
+    public void addRoutes() {
+        get("/service-records", ctx -> getAllServiceRecords(ctx));
+        get("/service-records/{id}", ctx -> getServiceRecordById(ctx));
+        get("/service-records/car/{carId}", ctx -> getServiceRecordsByCarId(ctx));
+        get("/service-records/car/{carId}/latest", ctx -> getServiceRecordsByCarIdOrderByDate(ctx));
+        delete("/service-records/delete/{id}", ctx -> deleteServiceRecord(ctx));
     }
 
     private void getAllServiceRecords(Context context) {
@@ -100,20 +70,6 @@ public class ServiceRecordController {
                 serviceRecordDao.findServiceRecordByCarIdOrderByDateDesc(carId);
 
         context.json(serviceRecords);
-    }
-
-    private void updateServiceRecord(Context context) {
-        Integer id = Integer.parseInt(context.pathParam("id"));
-
-        ServiceRecord serviceRecord =
-                context.bodyAsClass(ServiceRecord.class);
-
-        serviceRecord.setId(id);
-
-        ServiceRecord updatedServiceRecord =
-                serviceRecordDao.updateServiceRecord(serviceRecord);
-
-        context.json(updatedServiceRecord);
     }
 
     private void deleteServiceRecord(Context context) {

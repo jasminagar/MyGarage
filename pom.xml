@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -10,34 +10,20 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <jbcrypt.version>0.4</jbcrypt.version>
-
-        <!-- Java 17 -->
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Lombok -->
+        <jbcrypt.version>0.4</jbcrypt.version>
         <lombok.version>1.18.42</lombok.version>
-
-        <!-- Hibernate -->
-        <hibernate-version>6.6.38.Final</hibernate-version>
-
-        <!-- JUnit -->
+        <hibernate.version>6.6.38.Final</hibernate.version>
         <junit.version>6.0.2</junit.version>
-
-        <!-- PostgreSQL -->
         <postgres.version>42.7.7</postgres.version>
-
-        <!-- Testcontainers -->
         <testcontainers.version>2.0.3</testcontainers.version>
-
-        <!-- Logging -->
-        <logback-classic>1.5.27</logback-classic>
-        <org.slf4j>2.0.17</org.slf4j>
-
-        <!-- Hamcrest -->
-        <hamcrest>3.0</hamcrest>
-
+        <logback.version>1.5.27</logback.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <hamcrest.version>3.0</hamcrest.version>
+        <jackson.version>2.17.0</jackson.version>
+        <javalin.version>6.7.0</javalin.version>
     </properties>
 
     <repositories>
@@ -48,26 +34,60 @@
     </repositories>
 
     <dependencies>
+
+        <!-- Password hashing -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>${jbcrypt.version}</version>
         </dependency>
 
+        <!-- JWT -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+
+        <!-- Javalin -->
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin</artifactId>
+            <version>${javalin.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.javalin</groupId>
             <artifactId>javalin-rendering</artifactId>
-            <version>6.7.0</version>
+            <version>${javalin.version}</version>
+        </dependency>
+
+        <!-- Jackson: all modules use the same version -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.17.2</version>
+            <version>${jackson.version}</version>
         </dependency>
 
-        <!-- DATABASE -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
+        <!-- Database -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -77,18 +97,16 @@
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${hibernate-version}</version>
+            <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-hikaricp</artifactId>
-            <version>${hibernate-version}</version>
+            <version>${hibernate.version}</version>
         </dependency>
 
-
-        <!-- LOMBOK -->
-
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -96,9 +114,20 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
 
-        <!-- TESTING -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
 
+        <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -123,13 +152,25 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
-            <version>${hamcrest}</version>
+            <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>5.5.0</version>
+            <scope>test</scope>
+        </dependency>
 
-        <!-- TESTCONTAINERS -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.18.0</version>
+            <scope>test</scope>
+        </dependency>
 
+        <!-- Testcontainers -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
@@ -158,71 +199,27 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.17.2</version>
-        </dependency>
+    </dependencies>
 
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>rest-assured</artifactId>
-            <version>5.5.0</version>
-            <scope>test</scope>
-        </dependency>
+    <build>
+        <plugins>
 
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.18.0</version>
-            <scope>test</scope>
-        </dependency>
-
-
-        <!-- LOGGING -->
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback-classic}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.javalin</groupId>
-            <artifactId>javalin</artifactId>
-            <version>6.7.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest</artifactId>
-            <version>2.2</version> <!-- Use the latest version available -->
-            <scope>test</scope>
-        </dependency>
-
-
-    </dependencies><build><plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M7</version> <!-- Make sure to use a version that supports JUnit 5 -->
+                <version>3.0.0-M7</version>
             </plugin>
 
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-
-        </configuration>
-    </plugin>
-</plugins>
-</build>
+        </plugins>
+    </build>
 
 </project>

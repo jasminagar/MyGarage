@@ -33,7 +33,7 @@ class ServiceRecordControllerTest {
         ServiceRecordController controller =
                 new ServiceRecordController(serviceRecordDao, importVehicleService);
 
-        controller.addRoutes(app);
+        controller.addRoutes();
 
         app.start(7070);
     }

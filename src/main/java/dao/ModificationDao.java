@@ -11,6 +11,22 @@ import java.util.List;
 public class ModificationDao implements IModificationDao{
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
+    public List<Modification> getAllModifications(){
+        EntityManager em = emf.createEntityManager();
+
+        try{
+            return em.createQuery("select m from Modification m",
+                            Modification.class)
+                    .getResultList();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
     @Override
     public Modification createModification(Integer carId, Modification modification) {
         EntityManager em = emf.createEntityManager();

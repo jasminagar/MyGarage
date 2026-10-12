@@ -10,4 +10,6 @@ public class ApiException extends RuntimeException {
     public int getCode(){
         return code;
     }
+
+
 }

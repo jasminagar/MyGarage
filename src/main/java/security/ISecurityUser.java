@@ -5,7 +5,7 @@ import java.util.Set;
 
 public interface ISecurityUser {
 
-    Set<String> getRolesAsStrings();
+    Set<EnumRoles> getRolesAsStrings();
 
     boolean verifyPassword(String pw);
 

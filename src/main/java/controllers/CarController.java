@@ -7,6 +7,8 @@ import io.javalin.http.Context;
 
 import java.util.List;
 
+import static io.javalin.apibuilder.ApiBuilder.*;
+
 public class CarController {
     private final CarDao carDao;
 
@@ -14,13 +16,13 @@ public class CarController {
         this.carDao = carDao;
     }
 
-    public void addRoutes(Javalin app) {
-        app.get("/cars", ctx -> getAllCars(ctx));
-        app.get("/cars/{carId}", ctx -> getCarById(ctx));
+    public void addRoutes() {
+        get("/cars", ctx -> getAllCars(ctx));
+        get("/cars/{carId}", ctx -> getCarById(ctx));
         //app.get("/cars/{userId}", ctx -> getCarByUserId(ctx));
-        app.post("/cars/create", ctx -> createCar(ctx));
-        app.put("/cars/update/{carId}", ctx -> updateCar(ctx));
-        app.delete("/cars/delete/{carId}", ctx -> deletecar(ctx));
+        post("/cars/create", ctx -> createCar(ctx));
+        put("/cars/update/{carId}", ctx -> updateCar(ctx));
+        delete("/cars/delete/{carId}", ctx -> deletecar(ctx));
     }
 
     private void getAllCars(Context ctx) {

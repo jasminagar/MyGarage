@@ -26,7 +26,7 @@ public class CarDaoTest {
     void setUp(){
         carDao = new CarDao();
 
-        testUser = new User(2, "test");
+        testUser = new User("test", "test");
 
         EntityManager em = emf.createEntityManager();
 

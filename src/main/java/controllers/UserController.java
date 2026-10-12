@@ -7,6 +7,8 @@ import io.javalin.http.Context;
 
 import java.util.List;
 
+import static io.javalin.apibuilder.ApiBuilder.*;
+
 public class UserController {
     private final UserDao userDao;
 
@@ -14,10 +16,10 @@ public class UserController {
         this.userDao = userDao;
     }
 
-    public void addRoutes(Javalin app){
-        app.get("/users/{id}", ctx -> getUserById(ctx));
-        app.put("/users/update/{id}", ctx -> updateUser(ctx));
-        app.delete("users/delete", ctx -> deleteUser(ctx));
+    public void addRoutes(){
+        get("/users/{id}", ctx -> getUserById(ctx));
+        put("/users/update/{id}", ctx -> updateUser(ctx));
+        delete("users/delete", ctx -> deleteUser(ctx));
     }
 
     private void getUserById(Context context) {

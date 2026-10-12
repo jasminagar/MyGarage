@@ -8,6 +8,8 @@ import services.ConvertToEntity;
 
 import java.util.List;
 
+import static io.javalin.apibuilder.ApiBuilder.*;
+
 public class ModificationController {
 
     private final ModificationDao modificationDao;
@@ -16,12 +18,23 @@ public class ModificationController {
         this.modificationDao = modificationDao;
     }
 
-    public void addRoutes(Javalin app) {
-        app.post("/cars/{carId}/modifications", this::createModification);
-        app.get("/modifications/{id}", this::getModificationById);
-        app.get("/modifications/car/{carId}", this::getModificationsByCarId);
-        app.put("/modifications/update/{id}", this::updateModification);
-        app.delete("/modifications/delete/{id}", this::deleteModification);
+    public void addRoutes() {
+        post("/cars/{carId}/modifications", this::createModification);
+        get("/modifications/{id}", this::getModificationById);
+        get("/modifications/car/{carId}", this::getModificationsByCarId);
+        put("/modifications/update/{id}", this::updateModification);
+        delete("/modifications/delete/{id}", this::deleteModification);
+    }
+
+    private void getAllModifications(Context context){
+        try {
+            List<Modification> allModificatiosn = modificationDao.getAllModifications();
+            context.status(200);
+            context.json(allModificatiosn);
+        } catch (Exception e) {
+            context.status(500);
+            context.json("Could not retrieve modifications");
+        }
     }
 
     private void createModification(Context context) {
