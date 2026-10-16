@@ -2,7 +2,6 @@ package config;
 
 import jakarta.persistence.EntityManagerFactory;
 import utils.Utils;
-
 import java.util.Properties;
 
 public class HibernateConfig {

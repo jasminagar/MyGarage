@@ -4,7 +4,6 @@ import dto.MotInfoDTO;
 import dto.VehicleDTO;
 import entities.Car;
 import entities.ServiceRecord;
-
 import java.time.LocalDate;
 
 public class ConvertToEntity {

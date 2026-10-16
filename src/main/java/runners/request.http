@@ -1,9 +1,9 @@
-###
+### POST login and create token
 POST http://localhost:7070/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "username": "bob12",
+  "username": "bob10",
   "password": "1234"
 }
 
@@ -11,13 +11,7 @@ Content-Type: application/json
     client.global.set("token", response.body.token);
 %}
 
-###
-POST http://localhost:7070/api/v1/service-records/import/CR48908
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-###
-
+### POST creatte modification for car by car id
 POST http://localhost:7070/cars/2/modifications
 Content-Type: application/json
 
@@ -29,7 +23,7 @@ Content-Type: application/json
   "description": "Nye for- og bagbremser"
 }
 
-###
+### POST create expense
 POST http://localhost:7070/expenses/2/create
 Content-Type: application/json
 
@@ -39,3 +33,15 @@ Content-Type: application/json
   "amount": 600,
   "description": "Tanket bilen"
 }
+
+### GET servicerecord by id
+GET http://localhost:7070/service-records/car/2
+Content-Type: application/json
+
+### GET all cars
+GET http://localhost:7070/cars
+Content-Type: application/json
+
+### GET car by id
+GET http://localhost:7070/cars/5
+Content-Type: application/json

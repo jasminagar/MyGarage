@@ -13,28 +13,20 @@ public class UserDao implements IUserDao, ISecurityDAO {
     private final EntityManagerFactory emf =
             HibernateConfig.getEntityManagerFactory();
 
-    //Henter bruger og rolle før før em lukker. role er lazyloaded, så roller skal i mens session stadig er åben.
-    //Ellers giver user.getRolesAsString LazyInitializationException.
-    //Henter derfor bruger sammen med user, og genbruger bcrypt verifikation. !user.verifyPassword(password)
     @Override
     public User getVerifiedUser(String username, String password) {
-        //Opretter em som jeg bruger til forespørgsler til databasen.
-        //Jeg bruger jpa og hibernate til at håndtere forbindelen mellem mine java objekter og databasen.
         EntityManager em = emf.createEntityManager();
 
-        //Bruger try til at samle database operationer, så jeg kan sikre at em bliver lukket, også selvom koden fejler.
         try {
-            //JPQL forespørgsel.
             User user = em.createQuery(
                             "SELECT DISTINCT u FROM User u " +
                                     "LEFT JOIN FETCH u.roles " +
-                                    "WHERE u.username = :username", //Begrænser resultatet til bruger med angivet brugernavn.
-                            User.class //Fortæller hibernate at resultat skal være af typen user.
+                                    "WHERE u.username = :username",
+                            User.class
                     )
-                    .setParameter("username", username) //Binder username parameter til :username.
-                    //Håndterer resultat.
-                    .getResultStream()//Giver adgang til resultat med streams.
-                    .findFirst()//Henter det første resultat der findes.
+                    .setParameter("username", username)
+                    .getResultStream()
+                    .findFirst()
                     .orElse(null);
 
             if (user == null || !user.verifyPassword(password)) {
@@ -131,6 +123,7 @@ public class UserDao implements IUserDao, ISecurityDAO {
             em.close();
         }
     }
+
     @Override
     public User createUser(String username, String password) {
 

@@ -40,7 +40,7 @@ class VehicleImportServiceTest {
 
     @Test
     void importVehicle_shouldCreateCarAndServiceRecord() {
-
+        //ARRANGE
         String registrationNumber = "EC74058";
         String json = "{\"registration_number\":\"EC74058\"}";
 
@@ -73,19 +73,20 @@ class VehicleImportServiceTest {
 
         when(converter.convertToServiceRecord(vehicleDTO, savedCar))
                 .thenReturn(serviceRecord);
-
+        //ACT
         Car result =
                 vehicleImportService.importVehicle(
                         registrationNumber,
                         user
                 );
-
+        //ASSERT
         assertThat(result, is(notNullValue()));
         assertThat(result.getId(), is(2));
         assertThat(result.getRegistrationNumber(), is("EC74058"));
         assertThat(result.getUser(), is(user));
-
+       //VERIFY
         verify(apiReader).getVehicle(registrationNumber);
+
         verify(apiReader).convertFromJson(json);
 
         verify(converter).convertToCarEntity(vehicleDTO);

@@ -9,18 +9,14 @@ import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.UnauthorizedResponse;
-import jakarta.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SecurityController implements ISecurityController {
-
-    private static final Logger logger = LoggerFactory.getLogger(SecurityController.class);
     private final ISecurityDAO securityDAO;
     private final TokenSecurity tokenSecurity = new TokenSecurity();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -31,17 +27,10 @@ public class SecurityController implements ISecurityController {
 
     @Override
     public void login(Context context) {
-        //Tomt json objekt ved hjælp af obejectmapper.
-        //Jeg bruger den til at samle de oplysninger jeg vil sende tilbage til klienten.
-        //ObjectNode er et objekt der repræsenterer json data som jeg kan tilføje felter til.
-        //objectmapper er Jackson værktøj til at arbejde med json.
-        ObjectNode returnObject = objectMapper.createObjectNode();//For sending json object back to client.
-        try {
-            //Modtager data fra http request body, og konverter json data til java objekt.
-            //Jeg bruger javalin context.bodyAsClass, så jeg senere kan hente værdier med getter.
-            UserDTO userDTO = context.bodyAsClass(UserDTO.class);
+        ObjectNode returnObject = objectMapper.createObjectNode();
 
-            //Database user
+        try {
+            UserDTO userDTO = context.bodyAsClass(UserDTO.class);
             User verifiedUser = securityDAO.getVerifiedUser(
                     userDTO.getUsername(),
                     userDTO.getPassword()
@@ -51,19 +40,11 @@ public class SecurityController implements ISecurityController {
                 throw new UnauthorizedResponse("Invalid username or password");
             }
 
-            // Convert the database user to a DTO containing username and roles
             UserDTO tokenUser = new UserDTO(
                     verifiedUser.getUsername(),
                     verifiedUser.getRolesAsStrings()
             );
-
-            System.out.println("tokenUser is null: " + (tokenUser == null));
-            System.out.println("username: " + tokenUser.getUsername());
-            System.out.println("roles: " + tokenUser.getRoles());
-
-            //Kræver userDTO, derfor convert.
             String token = createToken(tokenUser);
-
             context.status(HttpStatus.OK);
             context.json(returnObject
                     .put("token", token)
@@ -98,7 +79,6 @@ public class SecurityController implements ISecurityController {
         );
 
         ctx.status(HttpStatus.CREATED);
-        // Return only public information, not the password hash
         ctx.json(objectMapper.createObjectNode().put("username", user.getUsername()));
     }
 
@@ -112,21 +92,12 @@ public class SecurityController implements ISecurityController {
                 .map(role -> role.toString().toUpperCase())
                 .collect(Collectors.toSet());
 
-
-        // Routes without roles, or with ANYONE, are public
         if (isOpenEndpoint(allowedRoles)) {
             return;
         }
 
         String token = getToken(ctx);
         UserDTO tokenUser = verifyToken(token);
-
-        System.out.println("Verified user: " + tokenUser.getUsername());
-        ctx.attribute("user", tokenUser);
-
-        System.out.println("Verified user: " + tokenUser.getUsername());
-
-
         ctx.attribute("user", tokenUser);
     }
 
@@ -178,7 +149,7 @@ public class SecurityController implements ISecurityController {
 
             UserDTO user = ctx.attribute("user");
             if (user == null) {
-                throw new ForbiddenResponse(
+                throw new UnauthorizedResponse(
                         "No user was added from the token");
             }
 
@@ -187,7 +158,6 @@ public class SecurityController implements ISecurityController {
                         "User was not authorized with roles: " + user.getRoles()
                                 + ". Needed roles are: " + allowedRoles);
             }
-
         }
 
     private boolean hasAllowedRole(UserDTO user, Set<String> allowedRoles) {
@@ -200,8 +170,6 @@ public class SecurityController implements ISecurityController {
                 .anyMatch(allowedRoles::contains);
     }
 
-    // Read settings from environment variables when deployed,
-    // otherwise from config.properties
     private String getSetting(String key) {
         if (System.getenv("DEPLOYED") != null) {
             String value = System.getenv(key);

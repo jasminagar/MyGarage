@@ -16,10 +16,11 @@ public class VehicleApiReaderTest {
 
     @Test
     void getVehicleShouldReturnJson() {
+        //ARRANGE
         VehicleApiReader vehicleApiReader = new VehicleApiReader();
-
+        //ACT
         String result = vehicleApiReader.getVehicle("ec74058");
-
+        //ASSERT
         assertNotNull(result);
         assertFalse(result.isEmpty());
 

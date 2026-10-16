@@ -2,7 +2,6 @@ package controllers;
 
 import dao.CarDao;
 import entities.Car;
-import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 import java.util.List;
@@ -19,7 +18,6 @@ public class CarController {
     public void addRoutes() {
         get("/cars", ctx -> getAllCars(ctx));
         get("/cars/{carId}", ctx -> getCarById(ctx));
-        //app.get("/cars/{userId}", ctx -> getCarByUserId(ctx));
         post("/cars/create", ctx -> createCar(ctx));
         put("/cars/update/{carId}", ctx -> updateCar(ctx));
         delete("/cars/delete/{carId}", ctx -> deletecar(ctx));
@@ -57,30 +55,6 @@ public class CarController {
         } catch (Exception e) {
             ctx.status(500);
             ctx.json("Could not retrieve car");
-        }
-    }
-
-    private void getCarByUserId(Context ctx) {
-        try {
-            Integer userId = Integer.parseInt(ctx.pathParam("userId"));
-            List<Car> cars = carDao.findCarByUserId(userId);
-
-            if (cars.isEmpty()) {
-                ctx.status(404);
-                ctx.json("No cars found for this user");
-                return;
-            }
-
-            ctx.status(200);
-            ctx.json(cars);
-
-        } catch (NumberFormatException e) {
-            ctx.status(400);
-            ctx.json("Invalid user ID");
-
-        } catch (Exception e) {
-            ctx.status(500);
-            ctx.json("Could not retrieve cars for user");
         }
     }
 

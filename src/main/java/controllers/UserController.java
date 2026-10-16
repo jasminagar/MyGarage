@@ -2,11 +2,7 @@ package controllers;
 
 import dao.UserDao;
 import entities.User;
-import io.javalin.Javalin;
 import io.javalin.http.Context;
-
-import java.util.List;
-
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class UserController {

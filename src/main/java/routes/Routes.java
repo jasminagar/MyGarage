@@ -1,13 +1,9 @@
 package routes;
 
 import controllers.*;
-import io.javalin.apibuilder.ApiBuilder;
 import io.javalin.apibuilder.EndpointGroup;
 import security.EnumRoles;
-import security.ISecurityController;
-import security.SecurityController;
 import security.SecurityRoutes;
-
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes {
@@ -20,15 +16,7 @@ public class Routes {
     private final CarImportController carImportController;
     private SecurityRoutes securityRoutes;
 
-    public Routes(
-            CarController carController,
-            UserController userController,
-            ServiceRecordController serviceRecordController,
-            ModificationController modificationController,
-            ExpenseController expenseController,
-            CarImportController carImportController,
-            SecurityRoutes securityRoutes
-    ) {
+    public Routes(CarController carController, UserController userController, ServiceRecordController serviceRecordController, ModificationController modificationController, ExpenseController expenseController, CarImportController carImportController, SecurityRoutes securityRoutes) {
         this.carController = carController;
         this.userController = userController;
         this.serviceRecordController = serviceRecordController;
@@ -41,7 +29,6 @@ public class Routes {
     public EndpointGroup getRoutes() {
         return () -> {
             securityRoutes.getSecurityRoutes().addEndpoints();
-
             carController.addRoutes();
             userController.addRoutes();
             serviceRecordController.addRoutes();

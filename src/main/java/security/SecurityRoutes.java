@@ -1,6 +1,5 @@
 package security;
 
-import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 
 import static io.javalin.apibuilder.ApiBuilder.post;

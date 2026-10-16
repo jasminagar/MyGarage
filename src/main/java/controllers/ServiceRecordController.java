@@ -1,10 +1,7 @@
 package controllers;
 
 import dao.ServiceRecordDao;
-import entities.Car;
 import entities.ServiceRecord;
-import entities.User;
-import io.javalin.Javalin;
 import io.javalin.http.Context;
 import services.ImportVehicleService;
 

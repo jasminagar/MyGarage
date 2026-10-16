@@ -2,7 +2,6 @@ package controllers;
 
 import dao.ExpenseDao;
 import entities.Expense;
-import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 import java.util.List;

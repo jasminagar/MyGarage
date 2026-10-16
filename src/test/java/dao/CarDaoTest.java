@@ -1,7 +1,6 @@
-package services;
+package dao;
 
 import config.HibernateConfig;
-import dao.CarDao;
 import entities.Car;
 import entities.User;
 import jakarta.persistence.EntityManager;

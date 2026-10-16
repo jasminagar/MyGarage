@@ -14,28 +14,22 @@ public class ImportVehicleService {
     private final CarDao carDao;
     private final ServiceRecordDao serviceRecordDao;
 
-    public ImportVehicleService(
-            VehicleApiReader apiReader,
-            ConvertToEntity converter,
-            CarDao carDao,
-            ServiceRecordDao serviceRecordDao
-    ) {
+    public ImportVehicleService(VehicleApiReader apiReader, ConvertToEntity converter, CarDao carDao, ServiceRecordDao serviceRecordDao) {
         this.apiReader = apiReader;
         this.converter = converter;
         this.carDao = carDao;
         this.serviceRecordDao = serviceRecordDao;
     }
 
-    public Car importVehicle(String registrationNumber, User user){
+    public Car importVehicle(String registrationNumber, User user) {
         String json = apiReader.getVehicle(registrationNumber);
-        //Bruger jackson objectmapper til at læse json data og mappe dem til felterne i vehicleDTO.
         VehicleDTO vehicleDTO = apiReader.convertFromJson(json);
         Car car = converter.convertToCarEntity(vehicleDTO);
         car.setUser(user);
         Car savedCar = carDao.createCar(car);
         ServiceRecord serviceRecord =
                 converter.convertToServiceRecord(vehicleDTO, savedCar);
-        if (serviceRecord != null){
+        if (serviceRecord != null) {
             serviceRecordDao.createServiceRecord(serviceRecord);
         }
         return savedCar;

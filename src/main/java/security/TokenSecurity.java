@@ -1,6 +1,5 @@
 package security;
 
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -9,10 +8,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-//JWT helper used by SecurityController.
 public class TokenSecurity {
 
-    public String createToken(UserDTO userDTO, String issuer, String expTime, String secret){
+    public String  createToken(UserDTO userDTO, String issuer, String expTime, String secret){
         long expirationMillis = Long.parseLong(expTime);
         if (expirationMillis <= 0 || issuer == null || issuer.isBlank()) {
             throw new IllegalArgumentException("Issuer and positive expiration are required");
@@ -23,15 +21,10 @@ public class TokenSecurity {
         String[] roles = userDTO.getRoles().stream()
                 .map(Enum::name)
                 .toArray(String[]::new);
-        //JWT er den metode i auth0 bibliotek jeg bruger til at arbejde med jason web toekn.
-        //create starter oprettelse af token.
+
         return JWT.create()
-                .withIssuer(issuer)  //Fortæller hvem der udsteder token, i dette tilfølde myGarage.
-                .withSubject(userDTO.getUsername()) //Subject er hvem tokenen handler om.
-                //Et claim indeholder information om det emne/subject som er pakket i JWT.
-                //Et claim der indeholder en liste af værdier. I dette tilfælde hedder den roles.
-                //toArray fejler hvis userDTO.getRoles er null.
-                //String[]:: new konverter samlingen af roller til nyt array, da withArrayClaim skal have et array.
+                .withIssuer(issuer)
+                .withSubject(userDTO.getUsername())
                 .withArrayClaim("roles", roles)
                 .withIssuedAt(now)
                 .withExpiresAt(now.plusMillis(expirationMillis))
@@ -74,7 +67,6 @@ public class TokenSecurity {
 
     public UserDTO getUserWithRolesFromToken(String token) {
         var jwt = JWT.decode(token);
-
         String username = jwt.getSubject();
         List<String> roleNames = jwt.getClaim("roles").asList(String.class);
 
@@ -98,6 +90,7 @@ public class TokenSecurity {
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("SECRET_KEY must be configured");
         }
+
         return Algorithm.HMAC256(secret);
     }
 }

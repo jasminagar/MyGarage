@@ -4,8 +4,6 @@ import config.HibernateConfig;
 import entities.Car;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.TypedQuery;
-
 import java.util.List;
 
 public class CarDao implements ICarDao{
