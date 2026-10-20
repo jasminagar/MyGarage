@@ -19,7 +19,6 @@ public class ServiceRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Integer id;
 
     private LocalDate date;
