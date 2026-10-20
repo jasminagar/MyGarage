@@ -2,7 +2,9 @@ package controllers;
 
 import dao.CarDao;
 import entities.Car;
+import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
+import security.EnumRoles;
 
 import java.util.List;
 
@@ -15,12 +17,13 @@ public class CarController {
         this.carDao = carDao;
     }
 
-    public void addRoutes() {
-        get("/cars", ctx -> getAllCars(ctx));
-        get("/cars/{carId}", ctx -> getCarById(ctx));
-        post("/cars/create", ctx -> createCar(ctx));
-        put("/cars/update/{carId}", ctx -> updateCar(ctx));
-        delete("/cars/delete/{carId}", ctx -> deletecar(ctx));
+    public EndpointGroup getRoutes(){
+        return ()->{
+            get("/cars", ctx -> getAllCars(ctx), EnumRoles.ADMIN);
+            get("/cars/{carId}", ctx -> getCarById(ctx), EnumRoles.ADMIN);
+            put("/cars/update/{carId}", ctx -> updateCar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
+            delete("/cars/delete/{carId}", ctx -> deletecar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
+        };
     }
 
     private void getAllCars(Context ctx) {
@@ -55,21 +58,6 @@ public class CarController {
         } catch (Exception e) {
             ctx.status(500);
             ctx.json("Could not retrieve car");
-        }
-    }
-
-    private void createCar(Context ctx) {
-        try {
-            Car car = ctx.bodyAsClass(Car.class);
-            Car createdCar = carDao.createCar(car);
-            ctx.status(201);
-            ctx.json(createdCar);
-        } catch (io.javalin.http.BadRequestResponse e) {
-            ctx.status(400);
-            ctx.json("Invalid car data");
-        } catch (Exception e) {
-            ctx.status(500);
-            ctx.json("Could not create car");
         }
     }
 

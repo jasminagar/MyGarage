@@ -2,7 +2,9 @@ package controllers;
 
 import dao.ServiceRecordDao;
 import entities.ServiceRecord;
+import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
+import security.EnumRoles;
 import services.ImportVehicleService;
 
 import java.util.List;
@@ -13,7 +15,7 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 public class ServiceRecordController {
 
     private final ServiceRecordDao serviceRecordDao;
-    private  final ImportVehicleService importVehicleService;
+    private final ImportVehicleService importVehicleService;
 
     public ServiceRecordController(ServiceRecordDao serviceRecordDao, ImportVehicleService importVehicleService) {
 
@@ -21,12 +23,14 @@ public class ServiceRecordController {
         this.importVehicleService = importVehicleService;
     }
 
-    public void addRoutes() {
-        get("/service-records", ctx -> getAllServiceRecords(ctx));
-        get("/service-records/{id}", ctx -> getServiceRecordById(ctx));
-        get("/service-records/car/{carId}", ctx -> getServiceRecordsByCarId(ctx));
-        get("/service-records/car/{carId}/latest", ctx -> getServiceRecordsByCarIdOrderByDate(ctx));
-        delete("/service-records/delete/{id}", ctx -> deleteServiceRecord(ctx));
+    public EndpointGroup getRoutes() {
+        return () -> {
+            get("/service-records", ctx -> getAllServiceRecords(ctx), EnumRoles.ADMIN);
+            get("/service-records/{id}", ctx -> getServiceRecordById(ctx), EnumRoles.USER, EnumRoles.ADMIN);
+            get("/service-records/car/{carId}", ctx -> getServiceRecordsByCarId(ctx), EnumRoles.USER, EnumRoles.ADMIN);
+            get("/service-records/car/{carId}/latest", ctx -> getServiceRecordsByCarIdOrderByDate(ctx), EnumRoles.USER, EnumRoles.ADMIN);
+            delete("/service-records/delete/{id}", ctx -> deleteServiceRecord(ctx), EnumRoles.USER, EnumRoles.ADMIN);
+        };
     }
 
     private void getAllServiceRecords(Context context) {

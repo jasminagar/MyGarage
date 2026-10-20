@@ -2,7 +2,10 @@ package controllers;
 
 import dao.UserDao;
 import entities.User;
+import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
+import security.EnumRoles;
+
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class UserController {
@@ -12,13 +15,15 @@ public class UserController {
         this.userDao = userDao;
     }
 
-    public void addRoutes(){
-        get("/users/{id}", ctx -> getUserById(ctx));
-        put("/users/update/{id}", ctx -> updateUser(ctx));
-        delete("users/delete", ctx -> deleteUser(ctx));
+    public EndpointGroup getRoutes() {
+        return () -> {
+            post("/users/delete", this::deleteUser, EnumRoles.ADMIN);
+            post("/users/update/{id}", this::updateUser, EnumRoles.USER, EnumRoles.ADMIN);
+            post("/users/{id}", this::getUserById, EnumRoles.ADMIN);
+        };
     }
 
-    private void getUserById(Context context) {
+    public void getUserById(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
 
         User user = userDao.findUserById(id);
@@ -32,7 +37,7 @@ public class UserController {
         context.json(user);
     }
 
-    private void updateUser(Context context) {
+    public void updateUser(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
 
         User user = context.bodyAsClass(User.class);
@@ -43,7 +48,7 @@ public class UserController {
         context.json(updatedUser);
     }
 
-    private void deleteUser(Context context) {
+    public void deleteUser(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
 
         User user = userDao.findUserById(id);

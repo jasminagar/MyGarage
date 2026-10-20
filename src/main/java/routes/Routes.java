@@ -3,7 +3,7 @@ package routes;
 import controllers.*;
 import io.javalin.apibuilder.EndpointGroup;
 import security.EnumRoles;
-import security.SecurityRoutes;
+
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes {
@@ -29,17 +29,12 @@ public class Routes {
     public EndpointGroup getRoutes() {
         return () -> {
             securityRoutes.getSecurityRoutes().addEndpoints();
-            carController.addRoutes();
-            userController.addRoutes();
-            serviceRecordController.addRoutes();
-            modificationController.addRoutes();
-            expenseController.addRoutes();
-
-            post(
-                    "/service-records/import/{registrationNumber}",
-                     ctx -> carImportController.importVehicle(ctx),
-                    EnumRoles.USER
-            );
+            expenseController.getRoutes();
+            carController.getRoutes();
+            modificationController.getRoutes();
+            serviceRecordController.getRoutes();
+            userController.getRoutes();
+            carImportController.getRoutes();
         };
     }
 }

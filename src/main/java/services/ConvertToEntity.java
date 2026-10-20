@@ -53,17 +53,13 @@ public class ConvertToEntity {
 
         ServiceRecord serviceRecord = new ServiceRecord();
 
-        serviceRecord.setDate(LocalDate.parse(motInfo.getDate())
-        );
+        serviceRecord.setDate(LocalDate.parse(motInfo.getDate()));
 
-        serviceRecord.setType(motInfo.getType()
-        );
+        serviceRecord.setType(motInfo.getType());
 
-        serviceRecord.setMileage(motInfo.getMileage()
-        );
+        serviceRecord.setMileage(motInfo.getMileage());
 
-        serviceRecord.setDescription(motInfo.getResult()
-        );
+        serviceRecord.setDescription(motInfo.getResult());
 
         serviceRecord.setCar(car);
 

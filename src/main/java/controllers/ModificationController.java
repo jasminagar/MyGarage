@@ -2,7 +2,10 @@ package controllers;
 
 import dao.ModificationDao;
 import entities.Modification;
+import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
+import security.EnumRoles;
+
 import java.util.List;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -15,15 +18,18 @@ public class ModificationController {
         this.modificationDao = modificationDao;
     }
 
-    public void addRoutes() {
-        post("/cars/{carId}/modifications", this::createModification);
-        get("/modifications/{id}", this::getModificationById);
-        get("/modifications/car/{carId}", this::getModificationsByCarId);
-        put("/modifications/update/{id}", this::updateModification);
-        delete("/modifications/delete/{id}", this::deleteModification);
+    public EndpointGroup getRoutes() {
+        return () -> {
+            get("/modifications", this::getAllModifications, EnumRoles.ADMIN);
+            get("/modifications/{id}", this::getModificationById, EnumRoles.USER, EnumRoles.ADMIN);
+            get("/modifications/car/{carId}", this::getModificationsByCarId, EnumRoles.USER, EnumRoles.ADMIN);
+            post("/cars/{carId}/modifications", this::createModification, EnumRoles.USER, EnumRoles.ADMIN);
+            put("/modifications/update/{id}", this::updateModification, EnumRoles.USER, EnumRoles.ADMIN);
+            delete("/modifications/delete/{id}", this::deleteModification, EnumRoles.USER, EnumRoles.ADMIN);
+        };
     }
 
-    private void getAllModifications(Context context){
+    private void getAllModifications(Context context) {
         try {
             List<Modification> allModificatiosn = modificationDao.getAllModifications();
             context.status(200);

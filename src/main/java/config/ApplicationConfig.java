@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import routes.Routes;
 import security.SecurityController;
-import security.SecurityRoutes;
+import routes.SecurityRoutes;
 import services.ConvertToEntity;
 import services.ImportVehicleService;
 import services.VehicleApiReader;

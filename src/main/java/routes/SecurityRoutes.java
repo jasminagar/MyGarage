@@ -1,6 +1,7 @@
-package security;
+package routes;
 
 import io.javalin.apibuilder.EndpointGroup;
+import security.ISecurityController;
 
 import static io.javalin.apibuilder.ApiBuilder.post;
 

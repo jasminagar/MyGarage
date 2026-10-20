@@ -4,6 +4,7 @@ import dao.UserDao;
 import dto.UserDTO;
 import entities.Car;
 import entities.User;
+import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
 import security.EnumRoles;
@@ -20,7 +21,13 @@ public class CarImportController {
         this.userDao = userDao;
     }
 
-    public void importVehicle(Context context) {
+    public EndpointGroup getRoutes(){
+        return() ->{
+            post("/service-records/import/{registrationNumber}", this::importVehicle, EnumRoles.USER, EnumRoles.ADMIN);
+        };
+    }
+
+    private void importVehicle(Context context) {
         String registrationNumber = context.pathParam("registrationNumber");
         UserDTO tokenUser = context.attribute("user");
 

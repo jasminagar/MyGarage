@@ -29,8 +29,7 @@ public class ImportVehicleService {
         car.setUser(user);
         Car savedCar = carDao.createCar(car);
 
-        ServiceRecord serviceRecord =
-                converter.convertToServiceRecord(vehicleDTO, savedCar);
+        ServiceRecord serviceRecord = converter.convertToServiceRecord(vehicleDTO, savedCar);
 
         if (serviceRecord != null) {
             serviceRecordDao.createServiceRecord(serviceRecord);

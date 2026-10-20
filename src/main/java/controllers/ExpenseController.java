@@ -2,7 +2,9 @@ package controllers;
 
 import dao.ExpenseDao;
 import entities.Expense;
+import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
+import security.EnumRoles;
 
 import java.util.List;
 
@@ -16,15 +18,17 @@ public class ExpenseController {
         this.expenseDao = expenseDao;
     }
 
-    public void addRoutes() {
-        post("/expenses/{carId}/create", this::createExpense);
-        get("/expenses", this::getAllExpenses);
-        get("/expenses/{id}", this::getExpenseById);
-        get("/expenses/car/{carId}", this::getExpensesByCarId);
-        get("/expenses/car/{carId}/category/{category}", this::getExpensesByCarIdAndCategory);
-        get("/expenses/car/{carId}/total", this::getTotalExpensesForCar);
-        put("/expenses/update/{id}", this::updateExpense);
-        delete("/expenses/delete/{id}", this::deleteExpense);
+    public EndpointGroup getRoutes() {
+        return () -> {
+            get("/expenses", this::getAllExpenses, EnumRoles.ADMIN);
+            get("/expenses/{id}", this::getExpenseById, EnumRoles.USER, EnumRoles.ADMIN);
+            get("/expenses/car/{carId}", this::getExpensesByCarId, EnumRoles.USER, EnumRoles.ADMIN);
+            get("/expenses/car/{carId}/category/{category}", this::getExpensesByCarIdAndCategory, EnumRoles.USER, EnumRoles.ADMIN);
+            get("/expenses/car/{carId}/total", this::getTotalExpensesForCar, EnumRoles.USER, EnumRoles.ADMIN);
+            post("/expenses/{carId}/create", this::createExpense, EnumRoles.USER, EnumRoles.ADMIN);
+            put("/expenses/update/{id}", this::updateExpense, EnumRoles.USER, EnumRoles.ADMIN);
+            delete("/expenses/delete/{id}", this::deleteExpense, EnumRoles.USER, EnumRoles.ADMIN);
+        };
     }
 
     private void createExpense(Context context) {
@@ -36,7 +40,7 @@ public class ExpenseController {
         Expense createdExpense =
                 expenseDao.createExpense(carId, expense);
 
-        if (createdExpense == null){
+        if (createdExpense == null) {
             context.status(404);
             context.result("Car not found");
             return;
