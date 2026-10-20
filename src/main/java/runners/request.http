@@ -11,7 +11,16 @@ Content-Type: application/json
     client.global.set("token", response.body.token);
 %}
 
-### POST creatte modification for car by car id
+### POST for register user
+POST http://localhost:7070/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "bob100",
+  "password": "1234"
+}
+
+### POST create modification for car by car id
 POST http://localhost:7070/cars/2/modifications
 Content-Type: application/json
 

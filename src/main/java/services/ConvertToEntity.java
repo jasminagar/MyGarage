@@ -44,7 +44,6 @@ public class ConvertToEntity {
         return car;
     }
 
-    //nested object i json
     public ServiceRecord convertToServiceRecord(VehicleDTO vehicleDTO, Car car) {
         if (vehicleDTO.getMotInfo() == null) {
             return null;

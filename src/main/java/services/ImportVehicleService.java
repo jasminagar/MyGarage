@@ -24,14 +24,18 @@ public class ImportVehicleService {
     public Car importVehicle(String registrationNumber, User user) {
         String json = apiReader.getVehicle(registrationNumber);
         VehicleDTO vehicleDTO = apiReader.convertFromJson(json);
+
         Car car = converter.convertToCarEntity(vehicleDTO);
         car.setUser(user);
         Car savedCar = carDao.createCar(car);
+
         ServiceRecord serviceRecord =
                 converter.convertToServiceRecord(vehicleDTO, savedCar);
+
         if (serviceRecord != null) {
             serviceRecordDao.createServiceRecord(serviceRecord);
         }
+
         return savedCar;
     }
 }

@@ -1,9 +1,4 @@
 POST http://localhost:7070/api/v1/service-records/import/CR48908
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJNeUdhcmFnZSIsInN1YiI6ImJvYjEyIiwicm9sZXMiOlsiVVNFUiJdLCJpYXQiOjE3OTE5OTk1NzUsImV4cCI6MTc5MjAwMzE3NX0.DF-Bjew6XC4PnhmLVB4HrO3NiCP7OqIT27_-xhBs5hE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJNeUdhcmFnZSIsInN1YiI6ImJvYjEwIiwicm9sZXMiOlsiVVNFUiJdLCJpYXQiOjE3OTI0ODg3NjksImV4cCI6MTc5MjQ5MjM2OX0.BdxAK8pSwKK_Cea4C0u4H_hTbTUPsjbXX51MgZMqLmE
 Content-Type: application/json
 
-//Når jeg kører test fungere Intellij som klient, og sender HTTP post request til backend API.
-//Indeholder nummerplade i url, og jwt token i header.
-//Token bruges til at identificere brugeren, og kontrollerer om bruger har rollen til at imortere en bil.
-//Backend kontrollere brugerens rettigheder, hvis okay så bliver request sendt videre til import controller.
-//Bruger debugger til at følge request gennem koden, og se hvordan data bevæger sig fra klienten gennem import controller.

@@ -37,7 +37,7 @@ public class Routes {
 
             post(
                     "/service-records/import/{registrationNumber}",
-                    ctx -> carImportController.importVehicle(ctx),
+                     ctx -> carImportController.importVehicle(ctx),
                     EnumRoles.USER
             );
         };
