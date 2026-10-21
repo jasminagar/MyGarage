@@ -114,11 +114,11 @@ public class ModificationDao implements IModificationDao{
         try {
             em.getTransaction().begin();
 
-            Modification modification =
-                    em.find(Modification.class, id);
+            Modification foundModification =
+                    em.find(Modification.class, modification.getId());
 
-            if (modification != null) {
-                em.remove(modification);
+            if (foundModification != null) {
+                em.remove(foundModification);
             }
 
             em.getTransaction().commit();
