@@ -29,12 +29,12 @@ public class Routes {
     public EndpointGroup getRoutes() {
         return () -> {
             securityRoutes.getSecurityRoutes().addEndpoints();
-            expenseController.getRoutes();
-            carController.getRoutes();
-            modificationController.getRoutes();
-            serviceRecordController.getRoutes();
-            userController.getRoutes();
-            carImportController.getRoutes();
+            expenseController.getRoutes().addEndpoints();
+            carController.getRoutes().addEndpoints();
+            modificationController.getRoutes().addEndpoints();
+            serviceRecordController.getRoutes().addEndpoints();
+            userController.getRoutes().addEndpoints();
+            carImportController.getRoutes().addEndpoints();
         };
     }
 }
