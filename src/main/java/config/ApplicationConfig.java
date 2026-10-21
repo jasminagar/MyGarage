@@ -18,9 +18,7 @@ import org.slf4j.LoggerFactory;
 import routes.Routes;
 import security.SecurityController;
 import routes.SecurityRoutes;
-import services.ConvertToEntity;
-import services.ImportVehicleService;
-import services.VehicleApiReader;
+import services.*;
 
 public class ApplicationConfig {
 
@@ -60,8 +58,9 @@ public class ApplicationConfig {
                         carDao,
                         serviceRecordDao
                 );
+        CarSecurityService securityService = new CarSecurityService(carDao, userDao);
 
-        CarController carController = new CarController(carDao);
+        CarController carController = new CarController(carDao, userDao, securityService);
         UserController userController = new UserController(userDao);
 
         ServiceRecordController serviceRecordController =
@@ -70,8 +69,9 @@ public class ApplicationConfig {
                         importVehicleService
                 );
 
+        ModificationSecurityService securityService1 = new ModificationSecurityService(modificationDao, userDao, carDao);
         ModificationController modificationController =
-                new ModificationController(modificationDao);
+                new ModificationController(modificationDao, securityService1);
 
         ExpenseController expenseController =
                 new ExpenseController(expenseDao);

@@ -108,7 +108,7 @@ public class ModificationDao implements IModificationDao{
     }
 
     @Override
-    public void deleteModification(Integer id) {
+    public void deleteModification(Modification modification) {
         EntityManager em = emf.createEntityManager();
 
         try {

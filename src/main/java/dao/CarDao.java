@@ -4,9 +4,11 @@ import config.HibernateConfig;
 import entities.Car;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.NoResultException;
+
 import java.util.List;
 
-public class CarDao implements ICarDao{
+public class CarDao implements ICarDao {
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
     @Override
@@ -27,6 +29,24 @@ public class CarDao implements ICarDao{
             throw new RuntimeException(
                     "Could not create car in database", e
             );
+        } finally {
+            em.close();
+        }
+    }
+
+    public Car findCarByIdAndUserId(Integer carId, Integer userId) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            return em.createQuery(
+                            "select c from Car c " +
+                                    "where c.id = :carId and c.user.id = :userId",
+                            Car.class)
+                    .setParameter("carId", carId)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         } finally {
             em.close();
         }
@@ -56,7 +76,7 @@ public class CarDao implements ICarDao{
 
         try {
             return em.createQuery(
-                    "SELECT c FROM Car c",
+                    "select c from Car c",
                     Car.class
             ).getResultList();
 
@@ -119,7 +139,7 @@ public class CarDao implements ICarDao{
 
         try {
             return em.createQuery(
-                            "SELECT c FROM Car c WHERE c.user.id = :userId",
+                            "select c from Car c where c.user.id = :userId",
                             Car.class
                     )
                     .setParameter("userId", userId)

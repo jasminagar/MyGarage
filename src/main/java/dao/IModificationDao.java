@@ -14,5 +14,5 @@ public interface IModificationDao {
 
     Modification updateModification(Modification modification);
 
-    void deleteModification(Integer id);
+    void deleteModification(Modification modification);
 }

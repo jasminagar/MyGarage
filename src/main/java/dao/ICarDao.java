@@ -8,7 +8,7 @@ public interface ICarDao {
 
     Car createCar(Car car);
 
-    Car findCarById(Integer id);
+    Car findCarByIdAndUserId(Integer carId, Integer userId);
 
     void deleteCar(Car car);
 

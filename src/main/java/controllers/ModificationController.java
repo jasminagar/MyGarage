@@ -1,21 +1,29 @@
 package controllers;
 
 import dao.ModificationDao;
+import dto.ModUpdateDTO;
+import dto.UserDTO;
 import entities.Modification;
+import entities.User;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
+import io.javalin.http.UnauthorizedResponse;
 import security.EnumRoles;
+import services.ModificationSecurityService;
 
 import java.util.List;
+import java.util.Map;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class ModificationController {
 
     private final ModificationDao modificationDao;
+    private final ModificationSecurityService securityService;
 
-    public ModificationController(ModificationDao modificationDao) {
+    public ModificationController(ModificationDao modificationDao, ModificationSecurityService securityService) {
         this.modificationDao = modificationDao;
+        this.securityService = securityService;
     }
 
     public EndpointGroup getRoutes() {
@@ -41,14 +49,23 @@ public class ModificationController {
     }
 
     private void createModification(Context context) {
-
         Integer carId = Integer.parseInt(context.pathParam("carId"));
 
-        Modification modification =
-                context.bodyAsClass(Modification.class);
+        UserDTO tokenUser = context.attribute("user");
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse("User is not authenticated");
+        }
 
-        Modification createdModification =
-                modificationDao.createModification(carId, modification);
+        Modification modification = context.bodyAsClass(Modification.class);
+
+        boolean isAdmin = tokenUser.getRoles().stream()
+                .anyMatch(enumRoles -> enumRoles == EnumRoles.ADMIN);
+
+        Modification createdModification = securityService.createModForUser(carId, tokenUser.getUsername(), isAdmin, modification);
+        if (createdModification == null) {
+            context.status(404).json("Car not found or access denied");
+            return;
+        }
 
         context.status(201);
         context.json(createdModification);
@@ -79,15 +96,28 @@ public class ModificationController {
     }
 
     private void updateModification(Context context) {
-        Integer id = Integer.parseInt(context.pathParam("id"));
+        Integer modId = Integer.parseInt(context.pathParam("id"));
+        Integer carId = Integer.parseInt(context.pathParam("carId"));
 
-        Modification modification =
-                context.bodyAsClass(Modification.class);
+        ModUpdateDTO dto = context.bodyAsClass(ModUpdateDTO.class);
 
-        modification.setId(id);
+        String userName = context.attribute("userName");
 
         Modification updatedModification =
-                modificationDao.updateModification(modification);
+                securityService.updateMod(
+                        dto,
+                        carId,
+                        modId,
+                        userName
+                );
+
+        if (updatedModification == null) {
+            context.status(404).json(
+                    Map.of("message",
+                            "Bilen eller modification blev ikke fundet")
+            );
+            return;
+        }
 
         context.json(updatedModification);
     }
@@ -95,16 +125,19 @@ public class ModificationController {
     private void deleteModification(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
 
-        Modification modification =
-                modificationDao.findModificationById(id);
-
-        if (modification == null) {
-            context.status(404);
-            context.result("Modification not found");
-            return;
+        UserDTO tokenUser = context.attribute("user");
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse("User is not authenticated");
         }
 
-        modificationDao.deleteModification(id);
+        boolean isAdmin = tokenUser.getRoles().contains(EnumRoles.ADMIN);
+
+        boolean deleted = securityService.deleteModForCar(id, tokenUser.getUsername(), isAdmin);
+
+        if(!deleted){
+            context.status(404).json("Modification not found or access denied");
+            return;
+        }
 
         context.status(204);
     }
