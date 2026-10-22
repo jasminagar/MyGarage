@@ -103,13 +103,7 @@ public class ModificationController {
 
         String userName = context.attribute("userName");
 
-        Modification updatedModification =
-                securityService.updateMod(
-                        dto,
-                        carId,
-                        modId,
-                        userName
-                );
+        Modification updatedModification = securityService.updateMod(dto, carId, modId, userName);
 
         if (updatedModification == null) {
             context.status(404).json(

@@ -4,7 +4,6 @@ import dao.CarDao;
 import dao.ModificationDao;
 import dao.UserDao;
 import dto.ModUpdateDTO;
-import dto.UserDTO;
 import entities.Car;
 import entities.Modification;
 import entities.User;
