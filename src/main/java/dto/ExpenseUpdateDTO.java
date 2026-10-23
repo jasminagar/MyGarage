@@ -9,6 +9,6 @@ public class ExpenseUpdateDTO {
 
     private LocalDate date;
     private String category;
-    private double amount;
+    private Double amount;
     private String description;
 }

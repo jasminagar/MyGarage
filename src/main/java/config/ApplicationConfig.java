@@ -73,8 +73,9 @@ public class ApplicationConfig {
         ModificationController modificationController =
                 new ModificationController(modificationDao, securityService1);
 
+        ExpenseSecurityService expenseSecurityService = new ExpenseSecurityService(expenseDao,carDao,userDao);
         ExpenseController expenseController =
-                new ExpenseController(expenseDao);
+                new ExpenseController(expenseDao, expenseSecurityService);
 
         CarImportController carImportController =
                 new CarImportController(importVehicleService, userDao);

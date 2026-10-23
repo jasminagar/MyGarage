@@ -7,6 +7,7 @@ import dto.ExpenseUpdateDTO;
 import entities.Car;
 import entities.Expense;
 import entities.User;
+import security.EnumRoles;
 
 public class ExpenseSecurityService {
     private final ExpenseDao expenseDao;
@@ -29,7 +30,23 @@ public class ExpenseSecurityService {
         return carDao.findCarByIdAndUserId(carId, user.getId());
     }
 
-    public Expense updateExpense(ExpenseUpdateDTO updateDTO, Integer carId, String userName, Integer expenseid){
+    public Expense createExpenseForUser(Integer carId, String username, boolean isAdmin, Expense expense){
+        Car car = carDao.findCarById(carId);
+        if (car == null) {
+            return null;
+        }
+
+        if (!isAdmin){
+          Car ownedCar = findCarForUser(carId, username);
+            if (ownedCar == null) {
+                return null;
+            }
+        }
+
+        return expenseDao.createExpense(carId, expense);
+    }
+
+    public Expense updateExpense(ExpenseUpdateDTO updateDTO, Integer carId, String userName, Integer expenseid, boolean isAdmin){
         Expense expense = expenseDao.findExpenseById(expenseid);
         if(expense == null){
             return null;
@@ -40,6 +57,54 @@ public class ExpenseSecurityService {
         }
 
         User user = userDao.findUserByUsername(userName);
-        return expense;
+        if(user == null){
+            return null;
+        }
+
+        if (!isAdmin){
+            Car car = findCarForUser(carId, userName);
+            if (car == null){
+                throw new SecurityException("Du har ikke adgang til bil med nummerplade: " + car.getRegistrationNumber());
+            }
+        }
+
+        if (updateDTO.getDate() != null){
+            expense.setDate(updateDTO.getDate());
+        }
+
+        if(updateDTO.getCategory() != null){
+            expense.setCategory(updateDTO.getCategory());
+        }
+
+        if (updateDTO.getAmount() != null){
+            expense.setAmount(updateDTO.getAmount());
+        }
+
+        if (updateDTO.getDescription() != null){
+            expense.setDescription(updateDTO.getDescription());
+        }
+
+        return expenseDao.updateExpense(expense);
+    }
+
+    public boolean deleteExpenseForCar(Integer expenseId, String username, boolean isAdmin){
+        Expense expense = expenseDao.findExpenseById(expenseId);
+        if (expense == null) {
+            return false;
+        }
+
+        if (isAdmin){
+            expenseDao.deleteExpense(expenseId);
+            return true;
+        }
+
+        Integer carId = expense.getCar().getId();
+        Car ownedCar = findCarForUser(carId, username);
+        if (ownedCar == null) {
+            return false;
+        }
+
+        expenseDao.deleteExpense(carId);
+        return true;
     }
 }

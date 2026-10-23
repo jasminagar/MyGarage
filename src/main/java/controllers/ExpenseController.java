@@ -1,10 +1,15 @@
 package controllers;
 
 import dao.ExpenseDao;
+import dto.ExpenseUpdateDTO;
+import dto.UserDTO;
 import entities.Expense;
+import entities.User;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
+import io.javalin.http.UnauthorizedResponse;
 import security.EnumRoles;
+import services.ExpenseSecurityService;
 
 import java.util.List;
 
@@ -13,9 +18,11 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 public class ExpenseController {
 
     private final ExpenseDao expenseDao;
+    private final ExpenseSecurityService securityService;
 
-    public ExpenseController(ExpenseDao expenseDao) {
+    public ExpenseController(ExpenseDao expenseDao, ExpenseSecurityService securityService) {
         this.expenseDao = expenseDao;
+        this.securityService = securityService;
     }
 
     public EndpointGroup getRoutes() {
@@ -34,15 +41,19 @@ public class ExpenseController {
     private void createExpense(Context context) {
         Integer carId = Integer.parseInt(context.pathParam("carId"));
 
-        Expense expense =
-                context.bodyAsClass(Expense.class);
+        UserDTO tokenUser = context.attribute("user");
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse("User is not authenticated");
+        }
 
-        Expense createdExpense =
-                expenseDao.createExpense(carId, expense);
+        Expense expense = context.bodyAsClass(Expense.class);
 
-        if (createdExpense == null) {
-            context.status(404);
-            context.result("Car not found");
+        boolean isAdmin = tokenUser.getRoles().stream()
+                .anyMatch(enumRoles -> enumRoles == EnumRoles.ADMIN);
+
+        Expense createdExpense = securityService.createExpenseForUser(carId, tokenUser.getUsername(), isAdmin, expense);
+        if (createdExpense == null){
+            context.status(404).json("Car not found or access denied");
             return;
         }
 
@@ -102,14 +113,19 @@ public class ExpenseController {
 
     private void updateExpense(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
+        Integer expenseId = Integer.parseInt(context.pathParam("id"));
 
-        Expense expense =
-                context.bodyAsClass(Expense.class);
+        UserDTO tokenUser = context.attribute("user");
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse("User is not authenticated");
+        }
 
-        expense.setId(id);
+        dto.ExpenseUpdateDTO expense = context.bodyAsClass(ExpenseUpdateDTO.class);
 
-        Expense updatedExpense =
-                expenseDao.updateExpense(expense);
+        boolean isAdmin = tokenUser.getRoles().stream()
+                        .anyMatch(enumRoles -> enumRoles == EnumRoles.ADMIN);
+
+        Expense updatedExpense =  securityService.updateExpense(expense, id, tokenUser.getUsername(), expenseId, isAdmin);
 
         context.json(updatedExpense);
     }
@@ -117,16 +133,19 @@ public class ExpenseController {
     private void deleteExpense(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
 
-        Expense expense =
-                expenseDao.findExpenseById(id);
-
-        if (expense == null) {
-            context.status(404);
-            context.result("Expense not found");
-            return;
+        UserDTO tokenUser = context.attribute("user");
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse("User is not authenticated");
         }
 
-        expenseDao.deleteExpense(id);
+        boolean isAdmin = tokenUser.getRoles().contains(EnumRoles.ADMIN);
+
+        boolean deleted = securityService.deleteExpenseForCar(id, tokenUser.getUsername(), isAdmin);
+
+        if(!deleted){
+            context.status(404).json("Modification not found or access denied");
+            return;
+        }
 
         context.status(204);
     }
