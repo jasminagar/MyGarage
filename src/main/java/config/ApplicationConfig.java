@@ -58,7 +58,10 @@ public class ApplicationConfig {
                         carDao,
                         serviceRecordDao
                 );
-        CarSecurityService securityService = new CarSecurityService(carDao, userDao);
+
+        SecurityService service = new SecurityService(userDao, carDao);
+
+        CarSecurityService securityService = new CarSecurityService(carDao, userDao,service);
 
         CarController carController = new CarController(carDao, userDao, securityService);
         UserController userController = new UserController(userDao);
@@ -69,11 +72,11 @@ public class ApplicationConfig {
                         importVehicleService
                 );
 
-        ModificationSecurityService securityService1 = new ModificationSecurityService(modificationDao, userDao, carDao);
+        ModificationSecurityService securityService1 = new ModificationSecurityService(modificationDao, userDao, carDao, service);
         ModificationController modificationController =
                 new ModificationController(modificationDao, securityService1);
 
-        ExpenseSecurityService expenseSecurityService = new ExpenseSecurityService(expenseDao,carDao,userDao);
+        ExpenseSecurityService expenseSecurityService = new ExpenseSecurityService(expenseDao,carDao,userDao, service);
         ExpenseController expenseController =
                 new ExpenseController(expenseDao, expenseSecurityService);
 

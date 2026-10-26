@@ -5,31 +5,42 @@ import dao.UserDao;
 import dto.CarUpdateDTO;
 import entities.Car;
 import entities.User;
+import security.EnumRoles;
 
 public class CarSecurityService {
     private final CarDao carDao;
     private final UserDao userDao;
+    private final SecurityService service;
 
-    public CarSecurityService(CarDao carDao, UserDao userDao) {
+    public CarSecurityService(CarDao carDao, UserDao userDao, SecurityService service) {
         this.carDao = carDao;
         this.userDao = userDao;
+        this.service = service;
     }
 
-    public Car findCarForUser(Integer carId, String userName){
-        User user = userDao.findUserByUsername(userName);
+    public Car updateCarForUser(Integer carId, String userName, CarUpdateDTO updateDTO){
+        Car existingCar = carDao.findCarById(carId);
+        if (existingCar== null){
+            return null;
+        }
 
+        if(!existingCar.getId().equals(carId)){
+            return null;
+        }
+
+        User user = userDao.findUserByUsername(userName);
         if (user == null) {
             return null;
         }
 
-       return carDao.findCarByIdAndUserId(carId, user.getId());
-    }
+        boolean isAdmin = user.getRoles().equals(EnumRoles.ADMIN);
 
-    public Car updateCarForUser(Integer carId, String userName, CarUpdateDTO updateDTO){
-        Car existingCar = findCarForUser(carId, userName);
-
-        if (existingCar == null){
-            return null;
+        if (!isAdmin){
+            Car ownedCar = service.findCarForUser(carId, userName);
+            if(ownedCar == null){
+                throw new SecurityException(
+                        "Du har ikke adgang til denne bil");
+            }
         }
 
         existingCar.setMileage(updateDTO.getMileage());
@@ -44,10 +55,24 @@ public class CarSecurityService {
 
     }
     public boolean deleteCarForUser(Integer carId, String username){
-        Car existingCar = findCarForUser(carId, username);
-
+        Car existingCar = carDao.findCarById(carId);
         if (existingCar == null) {
             return false;
+        }
+
+        User user = userDao.findUserByUsername(username);
+        if (user == null) {
+            return false;
+        }
+
+        boolean isAdmin = user.getRoles().equals(EnumRoles.ADMIN);
+
+        if (!isAdmin){
+            Car ownedCar = service.findCarForUser(carId, username);
+            if(ownedCar == null){
+                throw new SecurityException(
+                        "Du har ikke adgang til denne bil");
+            }
         }
 
         carDao.deleteCar(existingCar);

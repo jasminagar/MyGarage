@@ -13,21 +13,29 @@ public class ModificationSecurityService {
     private final ModificationDao modificationDao;
     private final UserDao userDao;
     private final CarDao carDao;
+    private final SecurityService service;
 
-    public ModificationSecurityService(ModificationDao modificationDao, UserDao userDao, CarDao carDao) {
+    public ModificationSecurityService(ModificationDao modificationDao, UserDao userDao, CarDao carDao, SecurityService service) {
         this.modificationDao = modificationDao;
         this.userDao = userDao;
         this.carDao = carDao;
+        this.service = service;
     }
 
-    public Car findCarForUser(Integer carId, String userName) {
-        User user = userDao.findUserByUsername(userName);
-
-        if (user == null) {
+    public Modification createModForUser(Integer carId, String username, boolean isAdmin, Modification modification) {
+        Car car = carDao.findCarById(carId);
+        if (car == null) {
             return null;
         }
 
-        return carDao.findCarByIdAndUserId(carId, user.getId());
+        if (!isAdmin) {
+            Car ownedCar = service.findCarForUser(carId, username);
+            if (ownedCar == null) {
+                return null;
+            }
+        }
+
+        return modificationDao.createModification(carId, modification);
     }
 
     public Modification updateMod(ModUpdateDTO dto, Integer carId, Integer modId, String userName) {
@@ -47,7 +55,7 @@ public class ModificationSecurityService {
         boolean isAdmin = user.getRoles().equals(EnumRoles.ADMIN);
 
         if(!isAdmin){
-            Car car = findCarForUser(carId, userName);
+            Car car = service.findCarForUser(carId, userName);
             if (car == null) {
                 throw new SecurityException(
                         "Du har ikke adgang til denne bil");
@@ -78,23 +86,6 @@ public class ModificationSecurityService {
 
     }
 
-    public Modification createModForUser(Integer carId, String username, boolean isAdmin, Modification modification) {
-        Car car = carDao.findCarById(carId);
-        if (car == null) {
-            return null;
-        }
-
-        if (!isAdmin) {
-            Car ownedCar = findCarForUser(carId, username);
-
-            if (ownedCar == null) {
-                return null;
-            }
-        }
-
-        return modificationDao.createModification(carId, modification);
-    }
-
     public boolean deleteModForCar(Integer modificationId, String username, boolean isAdmin) {
         Modification modification = modificationDao.findModificationById(modificationId);
         if (modification == null) {
@@ -108,7 +99,7 @@ public class ModificationSecurityService {
 
         Integer carId = modification.getCar().getId();
 
-        Car ownedCar = findCarForUser(carId, username);
+        Car ownedCar = service.findCarForUser(carId, username);
         if (ownedCar == null) {
             return false;
         }

@@ -3,7 +3,7 @@ POST http://localhost:7070/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "username": "bob10",
+  "username": "bob3",
   "password": "1234"
 }
 
@@ -16,12 +16,13 @@ POST http://localhost:7070/api/v1/auth/register
 Content-Type: application/json
 
 {
-  "username": "bob100",
+  "username": "bob200",
   "password": "1234"
 }
 
 ### POST create modification for car by car id
-POST http://localhost:7070/cars/2/modifications
+POST http://localhost:7070/api/v1/cars/60/modifications
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -33,7 +34,8 @@ Content-Type: application/json
 }
 
 ### POST create expense
-POST http://localhost:7070/expenses/2/create
+POST http://localhost:7070/api/v1/expenses/60/create
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -43,14 +45,12 @@ Content-Type: application/json
   "description": "Tanket bilen"
 }
 
-### GET servicerecord by id
-GET http://localhost:7070/service-records/car/2
+### GET all cars - only admin
+GET http://localhost:7070/api/v1/cars
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
-### GET all cars
-GET http://localhost:7070/cars
-Content-Type: application/json
-
-### GET car by id
-GET http://localhost:7070/cars/5
+### GET all service_records - only admin
+GET http://localhost:7070/api/v1/service-records
+Authorization: Bearer {{token}}
 Content-Type: application/json

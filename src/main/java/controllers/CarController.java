@@ -26,8 +26,8 @@ public class CarController {
         this.service = service;
     }
 
-    public EndpointGroup getRoutes(){
-        return ()->{
+    public EndpointGroup getRoutes() {
+        return () -> {
             get("/cars", ctx -> getAllCars(ctx), EnumRoles.ADMIN);
             get("/cars/{carId}", ctx -> getCarById(ctx), EnumRoles.ADMIN);
             put("/cars/update/{carId}", ctx -> updateCar(ctx), EnumRoles.USER, EnumRoles.ADMIN);

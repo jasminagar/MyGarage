@@ -13,21 +13,13 @@ public class ExpenseSecurityService {
     private final ExpenseDao expenseDao;
     private final CarDao carDao;
     private final UserDao userDao;
+    private final SecurityService service;
 
-    public ExpenseSecurityService(ExpenseDao expenseDao, CarDao carDao, UserDao userDao) {
+    public ExpenseSecurityService(ExpenseDao expenseDao, CarDao carDao, UserDao userDao, SecurityService service) {
         this.expenseDao = expenseDao;
         this.carDao = carDao;
         this.userDao = userDao;
-    }
-
-    public Car findCarForUser(Integer carId, String userName) {
-        User user = userDao.findUserByUsername(userName);
-
-        if (user == null) {
-            return null;
-        }
-
-        return carDao.findCarByIdAndUserId(carId, user.getId());
+        this.service = service;
     }
 
     public Expense createExpenseForUser(Integer carId, String username, boolean isAdmin, Expense expense){
@@ -37,7 +29,7 @@ public class ExpenseSecurityService {
         }
 
         if (!isAdmin){
-          Car ownedCar = findCarForUser(carId, username);
+          Car ownedCar = service.findCarForUser(carId, username);
             if (ownedCar == null) {
                 return null;
             }
@@ -62,7 +54,7 @@ public class ExpenseSecurityService {
         }
 
         if (!isAdmin){
-            Car car = findCarForUser(carId, userName);
+            Car car = service.findCarForUser(carId, userName);
             if (car == null){
                 throw new SecurityException("Du har ikke adgang til bil med nummerplade: " + car.getRegistrationNumber());
             }
@@ -99,7 +91,7 @@ public class ExpenseSecurityService {
         }
 
         Integer carId = expense.getCar().getId();
-        Car ownedCar = findCarForUser(carId, username);
+        Car ownedCar = service.findCarForUser(carId, username);
         if (ownedCar == null) {
             return false;
         }
