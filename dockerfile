@@ -1,5 +1,5 @@
 FROM eclipse-temurin:17-jre-jammy
-WORKDIR /backendPortifolio
+WORKDIR /
 
 # Kopier den præcise fil, som Maven har bygget (backendPortifolio-1.0-SNAPSHOT.jar)
 COPY target/backendPortifolio-1.0-SNAPSHOT.jar backendPortifolio.jar
