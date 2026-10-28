@@ -1,10 +1,10 @@
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
+# Kopier den præcise fil, som Maven har bygget (backendPortifolio-1.0-SNAPSHOT.jar)
 COPY target/backendPortifolio-1.0-SNAPSHOT.jar app.jar
 
-# Expose the port your app runs on
 EXPOSE 7070
 
-# Command to run your app
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Kør app.jar direkte fra /app mappen (uden skråstreg foran app.jar)
+ENTRYPOINT ["java", "-jar", "app.jar"]
