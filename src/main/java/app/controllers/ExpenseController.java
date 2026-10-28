@@ -32,7 +32,7 @@ public class ExpenseController {
             get("/expenses/car/{carId}/category/{category}", this::getExpensesByCarIdAndCategory, EnumRoles.USER, EnumRoles.ADMIN);
             get("/expenses/car/{carId}/total", this::getTotalExpensesForCar, EnumRoles.USER, EnumRoles.ADMIN);
             post("/expenses/{carId}/create", this::createExpense, EnumRoles.USER, EnumRoles.ADMIN);
-            put("/expenses/update/{id}", this::updateExpense, EnumRoles.USER, EnumRoles.ADMIN);
+            put("/expenses/car/{carId}/update/{id}", this::updateExpense, EnumRoles.USER, EnumRoles.ADMIN);
             delete("/expenses/delete/{id}", this::deleteExpense, EnumRoles.USER, EnumRoles.ADMIN);
         };
     }

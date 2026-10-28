@@ -7,6 +7,7 @@ import app.exceptions.UserAlreadyExistsException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import app.security.EnumRoles;
+import jakarta.persistence.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +117,7 @@ public class UserDao {
                     ).setParameter("username", username)
                     .getSingleResult();
 
-        } catch (jakarta.persistence.NoResultException e) {
+        } catch (NoResultException e) {
             return null;
 
         } finally {

@@ -7,6 +7,10 @@ import app.dto.ExpenseUpdateDTO;
 import app.entities.Car;
 import app.entities.Expense;
 import app.entities.User;
+import io.javalin.http.BadRequestResponse;
+import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.NotFoundResponse;
+import io.javalin.http.UnauthorizedResponse;
 
 public class ExpenseSecurityService {
     private final ExpenseDao expenseDao;
@@ -37,46 +41,66 @@ public class ExpenseSecurityService {
         return expenseDao.createExpense(carId, expense);
     }
 
-    public Expense updateExpense(ExpenseUpdateDTO updateDTO, Integer carId, String userName, Integer expenseid, boolean isAdmin){
-        Expense expense = expenseDao.findExpenseById(expenseid);
-        if(expense == null){
-            return null;
-        }
 
-        if(!expense.getId().equals(expenseid)){
-            return null;
+    public Expense updateExpense(
+            ExpenseUpdateDTO updateDTO,
+            Integer carId,
+            String userName,
+            Integer expenseId,
+            boolean isAdmin) {
+
+        Expense expense = expenseDao.findExpenseById(expenseId);
+
+        if (expense == null) {
+            throw new NotFoundResponse(
+                    "Expense not found with ID: " + expenseId
+            );
         }
 
         User user = userDao.findUserByUsername(userName);
-        if(user == null){
-            return null;
+
+        if (user == null) {
+            throw new UnauthorizedResponse(
+                    "Authenticated user not found"
+            );
         }
 
-        if (!isAdmin){
+        if (expense.getCar() == null ||
+                !expense.getCar().getId().equals(carId)) {
+            throw new BadRequestResponse(
+                    "Expense does not belong to car ID: " + carId
+            );
+        }
+
+        if (!isAdmin) {
             Car car = service.findCarForUser(carId, userName);
-            if (car == null){
-                throw new SecurityException("Du har ikke adgang til bil med nummerplade: " + car.getRegistrationNumber());
+
+            if (car == null) {
+                throw new ForbiddenResponse(
+                        "You do not have access to car ID: " + carId
+                );
             }
         }
 
-        if (updateDTO.getDate() != null){
+        if (updateDTO.getDate() != null) {
             expense.setDate(updateDTO.getDate());
         }
 
-        if(updateDTO.getCategory() != null){
+        if (updateDTO.getCategory() != null) {
             expense.setCategory(updateDTO.getCategory());
         }
 
-        if (updateDTO.getAmount() != null){
+        if (updateDTO.getAmount() != null) {
             expense.setAmount(updateDTO.getAmount());
         }
 
-        if (updateDTO.getDescription() != null){
+        if (updateDTO.getDescription() != null) {
             expense.setDescription(updateDTO.getDescription());
         }
 
         return expenseDao.updateExpense(expense);
     }
+
 
     public boolean deleteExpenseForCar(Integer expenseId, String username, boolean isAdmin){
         Expense expense = expenseDao.findExpenseById(expenseId);
