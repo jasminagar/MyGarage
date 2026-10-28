@@ -96,6 +96,7 @@ public class ApplicationConfig {
         Javalin app = Javalin.create(ApplicationConfig::configuration);
         app.beforeMatched(securityController::authenticate);
         app.beforeMatched(securityController::authorize);
+        app.get("/", ctx -> ctx.result("Velkommen"));
         app.start(port);
 
         return app;
