@@ -15,12 +15,12 @@ Hvis du udtrækker værdier manuelt (f.eks. json.get("speed")), arbejder du typi
 • Med en DTO fanger din compiler fejlen med det samme. Hvis du skriver vehicleDTO.getSped(), brokker dit IDE sig med en rød streg, før du overhovedet kører koden.
 
 
-# læs op på dao
+# læs op på app.dao
 
 # 3. Hvordan ville du sikre, at begge gemmes — eller ingen af dem?
 
 Her mangler den vigtigste del af dit svar.
-Hvis begge entities skal gemmes som én samlet operation, kan du lade ImportVehicleService styre en transaktion, der omfatter begge databaseoperationer:
+Hvis begge app.entities skal gemmes som én samlet operation, kan du lade ImportVehicleService styre en transaktion, der omfatter begge databaseoperationer:
 1. Start en transaktion.
 2. Gem Car.
 3. Opret og gem ServiceRecord.

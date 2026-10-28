@@ -3,7 +3,7 @@ title: Security and API Testing
 date: '2026-10-16T17:42:00+02:00'
 draft: false
 description: MyGarage - JWT authentication, authorization, and API testing
-summary: Implementing JWT security, organizing the Javalin configuration, and testing vehicle import functionality.
+summary: Implementing JWT app.security, organizing the Javalin configuration, and testing vehicle import functionality.
 categories: {Project Log}
 series: MyGarage
 series_order: 8
@@ -127,7 +127,7 @@ These two methods have different responsibilities. Authentication establishes th
 
 ### Public registration and login endpoints
 
-Users need to be able to create an account and log in before they have a token. I therefore added separate security routes:
+Users need to be able to create an account and log in before they have a token. I therefore added separate app.security app.routes:
 
 ```java
 public EndpointGroup getSecurityRoutes() {
@@ -138,11 +138,11 @@ public EndpointGroup getSecurityRoutes() {
 }
 ```
 
-These endpoints are registered separately from the protected functionality. Registration allows a new user to create an account, while login checks the supplied credentials and returns a JWT. The public-route handling in the security middleware allows these requests to proceed without an existing token.
+These endpoints are registered separately from the protected functionality. Registration allows a new user to create an account, while login checks the supplied credentials and returns a JWT. The public-route handling in the app.security middleware allows these requests to proceed without an existing token.
 
 ## Centralizing the Javalin Configuration
 
-I organized the server setup in `ApplicationConfig`, where the application's DAOs, services, controllers, security components, and routes are created before the server starts.
+I organized the server setup in `ApplicationConfig`, where the application's DAOs, app.services, app.controllers, app.security components, and app.routes are created before the server starts.
 
 For example, the vehicle import service is initialized with its dependencies through its constructor:
 
@@ -156,11 +156,11 @@ ImportVehicleService importVehicleService =
         );
 __________________
 
-The service receives a component for retrieving vehicle data from the external API, a converter for transforming the data into entities, and DAOs for persisting the car and its service record.
+The service receives a component for retrieving vehicle data from the external API, a converter for transforming the data into app.entities, and DAOs for persisting the car and its service record.
 
 Passing these dependencies into the constructor makes the service's requirements explicit. It also makes testing easier because the real dependencies can be replaced with mocks, allowing the service logic to be tested independently.
 
-The `Routes` class brings the application's endpoints together. Its `getRoutes()` method registers the security routes and the routes belonging to the different controllers:
+The `Routes` class brings the application's endpoints together. Its `getRoutes()` method registers the app.security app.routes and the app.routes belonging to the different app.controllers:
 
 ______________________
 public EndpointGroup getRoutes() {
@@ -183,14 +183,14 @@ ____________________-
 
 The vehicle import endpoint is assigned the `USER` role. This makes the access requirement part of the route definition rather than leaving it implicit in the controller.
 
-Finally, the security methods are registered as middleware when the Javalin application starts:
+Finally, the app.security methods are registered as middleware when the Javalin application starts:
 
 __________________
 app.beforeMatched(securityController::authenticate);
 app.beforeMatched(securityController::authorize);
 __________________
 
-The middleware runs before the matched endpoint handler. Authentication runs first, allowing the verified user to be added to the context. Authorization then checks the user's permissions before the request reaches the endpoint. This avoids having to repeat the same security checks in every controller.
+The middleware runs before the matched endpoint handler. Authentication runs first, allowing the verified user to be added to the context. Authorization then checks the user's permissions before the request reaches the endpoint. This avoids having to repeat the same app.security checks in every controller.
 
 ## Testing the Vehicle Import Service
 
@@ -272,11 +272,11 @@ This lets me test the API through actual HTTP requests rather than calling the J
 
 Running the application in debug mode also allows me to follow the request through the authentication middleware, authorization middleware, controller, and service. This makes it easier to understand how the different layers work together and to identify where a problem occurs.
 
-The unit test and the HTTP requests serve different purposes. The unit test isolates the import service and checks its logic, while the HTTP requests exercise the integration between the security configuration, routing, and application functionality.
+The unit test and the HTTP requests serve different purposes. The unit test isolates the import service and checks its logic, while the HTTP requests exercise the integration between the app.security configuration, routing, and application functionality.
 
 ## Reflection
 
-This week's work brought together several parts of the backend that need to work correctly as a whole. The JWT implementation provides a way to identify users across requests, and the role checks restrict access to endpoints such as vehicle import. Centralizing the application setup also makes the relationships between the DAOs, services, controllers, and routes easier to follow.
+This week's work brought together several parts of the backend that need to work correctly as a whole. The JWT implementation provides a way to identify users across requests, and the role checks restrict access to endpoints such as vehicle import. Centralizing the application setup also makes the relationships between the DAOs, app.services, app.controllers, and app.routes easier to follow.
 
 The tests gave me two different ways to check the application: mocks let me test the import service in isolation, while HTTP requests let me observe how the running API handles authentication and protected operations.
 

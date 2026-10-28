@@ -3,7 +3,7 @@ title: API integration
 date: '2026-09-29T17:42:00+02:00'
 draft: false
 description: MyGarage - API integration and vehicle data processing
-summary: Integration with MotorAPI, JSON, DTOs, and conversion to entities
+summary: Integration with MotorAPI, JSON, DTOs, and conversion to app.entities
 categories: {Project Log}
 series: MyGarage
 series_order: 5

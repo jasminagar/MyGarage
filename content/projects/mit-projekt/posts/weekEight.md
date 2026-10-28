@@ -2,8 +2,8 @@
 title: Securing Endpoints and Testing the API
 date: '2026-10-23T15:30:00+02:00'
 draft: false
-description: MyGarage - Resource-level authorization, JWT security, and REST API testing
-summary: Strengthening endpoint security with ownership checks, role-based access control, partial updates, and API testing.
+description: MyGarage - Resource-level authorization, JWT app.security, and REST API testing
+summary: Strengthening endpoint app.security with ownership checks, role-based access control, partial updates, and API testing.
 categories: {Project Log}
 series: MyGarage
 series_order: 9
@@ -11,15 +11,15 @@ series_order: 9
 
 # Securing Endpoints and Testing the API
 
-Last week, I implemented JWT authentication, authorization middleware, and centralized the security configuration in Javalin. I also tested the vehicle import functionality using JUnit, Mockito, Hamcrest, and IntelliJ's HTTP Client.
+Last week, I implemented JWT authentication, authorization middleware, and centralized the app.security configuration in Javalin. I also tested the vehicle import functionality using JUnit, Mockito, Hamcrest, and IntelliJ's HTTP Client.
 
-This week, I continued working on security after realizing that checking whether a user has access to an endpoint is not enough to protect the data behind it. A user might have the `USER` role and therefore be allowed to access an endpoint, but that does not mean they should be allowed to modify every car, expense, or modification in the system.
+This week, I continued working on app.security after realizing that checking whether a user has access to an endpoint is not enough to protect the data behind it. A user might have the `USER` role and therefore be allowed to access an endpoint, but that does not mean they should be allowed to modify every car, expense, or modification in the system.
 
 I focused on adding resource-level authorization, making sure the correct roles are assigned to endpoints, and improving the way modifications are updated. I also continued working toward testing the API through HTTP requests and verifying both successful operations and access restrictions.
 
 ## Resource-Level Authorization
 
-In the previous implementation, I used JWT authentication to identify the user and role-based authorization to determine whether the user could access an endpoint. The authenticated user is stored in the Javalin context as a `UserDTO`, allowing controllers to access the verified username and roles.
+In the previous implementation, I used JWT authentication to identify the user and role-based authorization to determine whether the user could access an endpoint. The authenticated user is stored in the Javalin context as a `UserDTO`, allowing app.controllers to access the verified username and roles.
 
 However, endpoint authorization and resource authorization solve two different problems.
 
@@ -161,7 +161,7 @@ This distinction is important. Assigning the `USER` and `ADMIN` roles to a route
 
 I applied the role configuration across the endpoints so that the access requirements are explicit and handled by the existing authentication and authorization middleware.
 
-This approach also reduces duplicated security code in controllers. Instead of manually checking roles in every endpoint, the route configuration defines which roles are allowed to call it. Additional ownership checks are only needed when access depends on the particular resource.
+This approach also reduces duplicated app.security code in app.controllers. Instead of manually checking roles in every endpoint, the route configuration defines which roles are allowed to call it. Additional ownership checks are only needed when access depends on the particular resource.
 
 ## Securing Modification Updates
 
@@ -202,24 +202,24 @@ The other fields should remain unchanged.
 
 The service therefore checks each field before applying it to the existing entity:
 
-if (dto.getName() != null) {
-    modification.setName(dto.getName());
+if (app.dto.getName() != null) {
+    modification.setName(app.dto.getName());
 }
 
-if (dto.getCategory() != null) {
-    modification.setCategory(dto.getCategory());
+if (app.dto.getCategory() != null) {
+    modification.setCategory(app.dto.getCategory());
 }
 
-if (dto.getDate() != null) {
-    modification.setDate(dto.getDate());
+if (app.dto.getDate() != null) {
+    modification.setDate(app.dto.getDate());
 }
 
-if (dto.getCost() != null) {
-    modification.setCost(dto.getCost());
+if (app.dto.getCost() != null) {
+    modification.setCost(app.dto.getCost());
 }
 
-if (dto.getDescription() != null) {
-    modification.setDescription(dto.getDescription());
+if (app.dto.getDescription() != null) {
+    modification.setDescription(app.dto.getDescription());
 }
 
 
@@ -241,7 +241,7 @@ The important point is that the controller does not update the database directly
 
 Last week, I used JUnit, Mockito, and Hamcrest to test the vehicle import service independently of external APIs and the database. I also used IntelliJ's HTTP Client to send requests to the running backend and observe how JWT authentication and route authorization worked.
 
-I want to extend this approach to the new security checks by testing not only whether an operation succeeds, but also whether it is correctly rejected when the user does not have access.
+I want to extend this approach to the new app.security checks by testing not only whether an operation succeeds, but also whether it is correctly rejected when the user does not have access.
 
 For the expense deletion endpoint, useful scenarios include:
 
@@ -279,7 +279,7 @@ These are examples of the test structure I intend to use; they do not represent 
 
 ## Password Security
 
-The login flow is another important part of the overall security model. JWT protects access to the API after authentication, but the initial login process must also handle credentials securely.
+The login flow is another important part of the overall app.security model. JWT protects access to the API after authentication, but the initial login process must also handle credentials securely.
 
 Passwords should not be stored as plaintext in the database. Instead, the application should store a password hash generated with a password-hashing algorithm such as bcrypt. During login, the application verifies the supplied password against the stored hash rather than comparing plaintext passwords.
 
@@ -287,11 +287,11 @@ Bcrypt is designed to make password guessing more computationally expensive and 
 
 This is separate from JWT signing. Password hashing protects stored user credentials, while the JWT signature allows the backend to verify that a token has not been altered. Neither mechanism replaces the other.
 
-The login endpoint must validate credentials before issuing a token, and protected endpoints must continue to validate the token and the user's permissions. The security of the API therefore depends on several layers working together rather than on JWT alone.
+The login endpoint must validate credentials before issuing a token, and protected endpoints must continue to validate the token and the user's permissions. The app.security of the API therefore depends on several layers working together rather than on JWT alone.
 
 ## Reflection
 
-This week, I expanded the security work from last week's JWT implementation by focusing on what authenticated users are actually allowed to do with the application's data.
+This week, I expanded the app.security work from last week's JWT implementation by focusing on what authenticated users are actually allowed to do with the application's data.
 
 The distinction between role-based authorization and resource-level authorization was particularly important. A route can permit both users and administrators, but the service must still check ownership before allowing a regular user to modify or delete a resource.
 

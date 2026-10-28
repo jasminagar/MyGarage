@@ -27,7 +27,7 @@ This made the core idea quite clear. I do not need a complicated automotive plat
 
 Before starting the implementation, I thought about what information I would personally want to keep track of when owning and working on a car.
 
-The main idea is to have one place where all relevant information about a car can be collected. The domain model is not a database schema yet, but a simple map of the main entities and how they relate to each other.
+The main idea is to have one place where all relevant information about a car can be collected. The domain model is not a database schema yet, but a simple map of the main app.entities and how they relate to each other.
 
 The system can then build a history of the car over time, making it easier to understand what has been done to it and how much it has cost to own and modify.
 

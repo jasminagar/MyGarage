@@ -1,0 +1,34 @@
+package app.config;
+
+import jakarta.persistence.EntityManagerFactory;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import java.util.Properties;
+
+public class HibernateEmfBuilder {
+    private HibernateEmfBuilder() {}
+
+    static EntityManagerFactory build(Properties props) {
+        try {
+            Configuration configuration = new Configuration();
+            configuration.setProperties(props);
+
+            // Register app.entities to make Hibernate aware
+            EntityRegistry.registerEntities(configuration);
+
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties())
+                    .build();
+
+            // Make JPA compliant version of Hibernates sf
+            SessionFactory sf = configuration.buildSessionFactory(serviceRegistry);
+            return sf.unwrap(EntityManagerFactory.class);
+
+        } catch (Throwable ex) {
+            System.err.println("Initial SessionFactory creation failed: " + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+}

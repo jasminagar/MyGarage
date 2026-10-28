@@ -3,7 +3,7 @@ title: Security and API testing
 date: '2026-09-29T17:42:00+02:00'
 draft: false
 description: MyGarage - API integration and vehicle data processing
-summary: Adding security layer and testing endpoints.
+summary: Adding app.security layer and testing endpoints.
 categories: {Project Log}
 series: MyGarage
 series_order: 7
@@ -11,9 +11,9 @@ series_order: 7
 
 ## Security and API Testing
 
-This week I worked on the security part of the application by adding registration and login endpoints. I chose to keep the authentication routes separated from the other controllers because authentication is its own part of the application and will be used by the rest of the API.
+This week I worked on the app.security part of the application by adding registration and login endpoints. I chose to keep the authentication app.routes separated from the other app.controllers because authentication is its own part of the application and will be used by the rest of the API.
 
-The routes are defined in a `SecurityRoutes` class:
+The app.routes are defined in a `SecurityRoutes` class:
 
 ```java
 public void addRoutes(Javalin app) {
@@ -22,7 +22,7 @@ public void addRoutes(Javalin app) {
 }
 ```
 
-I chose this structure because it keeps the route definitions together instead of mixing authentication routes with routes for cars, expenses and modifications. It makes the application easier to navigate and makes it clear which endpoints belong to the security part of the system. Using `POST` also makes sense because both operations send data to the server and change or process data rather than simply retrieving it.
+I chose this structure because it keeps the route definitions together instead of mixing authentication app.routes with app.routes for cars, expenses and modifications. It makes the application easier to navigate and makes it clear which endpoints belong to the app.security part of the system. Using `POST` also makes sense because both operations send data to the server and change or process data rather than simply retrieving it.
 
 I also created an `ISecurityController` interface:
 
@@ -36,7 +36,7 @@ public interface ISecurityController {
 }
 ```
 
-The interface gives the security controller a clear contract. The `SecurityRoutes` class does not need to know how login or registration is implemented; it only needs to know that the controller provides these methods. This creates a separation between the routing and the actual security logic. It also makes the code easier to change and test because the route layer can work against the interface rather than being tied directly to one implementation.
+The interface gives the app.security controller a clear contract. The `SecurityRoutes` class does not need to know how login or registration is implemented; it only needs to know that the controller provides these methods. This creates a separation between the routing and the actual app.security logic. It also makes the code easier to change and test because the route layer can work against the interface rather than being tied directly to one implementation.
 
 The registration endpoint was tested with:
 
@@ -95,7 +95,7 @@ Content-Type: application/json
 }
 ```
 
-An expense is also connected to a car, but it represents a different type of information. Modifications describe repairs or changes to the car, while expenses describe money spent on the car. Keeping them as separate entities means they can have their own endpoints and database operations instead of putting unrelated information into the `Car` entity.
+An expense is also connected to a car, but it represents a different type of information. Modifications describe repairs or changes to the car, while expenses describe money spent on the car. Keeping them as separate app.entities means they can have their own endpoints and database operations instead of putting unrelated information into the `Car` entity.
 
 For automated testing, I used Rest Assured together with JUnit and Hamcrest. I chose Rest Assured because it lets me test the API through actual HTTP requests. This is useful because it tests more than just individual Java methods. It tests whether the route exists, whether the request reaches the correct controller, whether the response has the correct status code and whether the returned JSON contains the expected data.
 
@@ -121,4 +121,4 @@ Using Hamcrest makes the tests more expressive than simply checking whether a re
 
 This approach also means that when I change something in the backend, I can run the tests and quickly see if an endpoint has stopped behaving as expected. The tests therefore work as a way of verifying the API from a client's perspective rather than only verifying the internal implementation.
 
-Overall, I have tried to keep the different parts separated: routes handle the HTTP endpoints, controllers handle the request logic, DAOs handle database operations, and interfaces define what the controllers and security components should provide. This makes it easier to add more endpoints without putting all of the logic into the same classes.
+Overall, I have tried to keep the different parts separated: app.routes handle the HTTP endpoints, app.controllers handle the request logic, DAOs handle database operations, and interfaces define what the app.controllers and app.security components should provide. This makes it easier to add more endpoints without putting all of the logic into the same classes.
