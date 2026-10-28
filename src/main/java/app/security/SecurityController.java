@@ -10,6 +10,7 @@ import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.UnauthorizedResponse;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -208,5 +209,9 @@ public class SecurityController {
                     "Could not read app.config.properties", e
             );
         }
+    }
+
+    public void healthCheck(@NotNull Context ctx) {
+        ctx.status(200).json("{\"msg\": \"API is up and running\"}");
     }
 }

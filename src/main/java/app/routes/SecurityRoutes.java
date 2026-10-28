@@ -2,6 +2,8 @@ package app.routes;
 
 import io.javalin.apibuilder.EndpointGroup;
 import app.security.SecurityController;
+
+import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.post;
 
 public class SecurityRoutes {
@@ -13,6 +15,7 @@ public class SecurityRoutes {
 
     public EndpointGroup getSecurityRoutes() {
       return() ->{
+          get("/auth/healthcheck", securityController::healthCheck);
           post("/auth/register", securityController::register);
           post("/auth/login", securityController::login);
       };
