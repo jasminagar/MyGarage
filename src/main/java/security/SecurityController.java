@@ -3,6 +3,7 @@ package security;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dao.UserDao;
 import dto.UserDTO;
 import entities.User;
 import io.javalin.http.Context;
@@ -16,22 +17,21 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SecurityController implements ISecurityController {
-    private final ISecurityDAO securityDAO;
+public class SecurityController {
     private final TokenSecurity tokenSecurity = new TokenSecurity();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final UserDao userDao;
 
-    public SecurityController(ISecurityDAO securityDAO) {
-        this.securityDAO = securityDAO;
+    public SecurityController(UserDao userDao) {
+        this.userDao = userDao;
     }
 
-    @Override
     public void login(Context context) {
         ObjectNode returnObject = objectMapper.createObjectNode();
 
         try {
             UserDTO userDTO = context.bodyAsClass(UserDTO.class);
-            User verifiedUser = securityDAO.getVerifiedUser(
+            User verifiedUser = userDao.getVerifiedUser(
                     userDTO.getUsername(),
                     userDTO.getPassword()
             );
@@ -68,12 +68,11 @@ public class SecurityController implements ISecurityController {
         );
     }
 
-    @Override
     public void register(Context ctx) {
 
         UserDTO userDTO = ctx.bodyAsClass(UserDTO.class);
 
-        User user = securityDAO.createUser(
+        User user = userDao.createUser(
                 userDTO.getUsername(),
                 userDTO.getPassword()
         );

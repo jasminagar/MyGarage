@@ -8,7 +8,7 @@ import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
-public class ModificationDao implements IModificationDao{
+public class ModificationDao {
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
     public List<Modification> getAllModifications(){
@@ -27,7 +27,7 @@ public class ModificationDao implements IModificationDao{
             em.close();
         }
     }
-    @Override
+
     public Modification createModification(Integer carId, Modification modification) {
         EntityManager em = emf.createEntityManager();
 
@@ -57,7 +57,6 @@ public class ModificationDao implements IModificationDao{
         }
     }
 
-    @Override
     public Modification findModificationById(Integer id) {
         EntityManager em = emf.createEntityManager();
 
@@ -68,7 +67,6 @@ public class ModificationDao implements IModificationDao{
         }
     }
 
-    @Override
     public List<Modification> findModificationByCarId(Integer carId) {
         EntityManager em = emf.createEntityManager();
 
@@ -84,7 +82,6 @@ public class ModificationDao implements IModificationDao{
         }
     }
 
-    @Override
     public Modification updateModification(Modification modification) {
         EntityManager em = emf.createEntityManager();
 
@@ -107,7 +104,6 @@ public class ModificationDao implements IModificationDao{
         }
     }
 
-    @Override
     public void deleteModification(Modification modification) {
         EntityManager em = emf.createEntityManager();
 

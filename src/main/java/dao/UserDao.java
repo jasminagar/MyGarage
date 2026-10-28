@@ -5,15 +5,13 @@ import entities.Role;
 import entities.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import security.ISecurityDAO;
 import security.EnumRoles;
 
-public class UserDao implements IUserDao, ISecurityDAO {
+public class UserDao {
 
     private final EntityManagerFactory emf =
             HibernateConfig.getEntityManagerFactory();
 
-    @Override
     public User getVerifiedUser(String username, String password) {
         EntityManager em = emf.createEntityManager();
 
@@ -39,7 +37,6 @@ public class UserDao implements IUserDao, ISecurityDAO {
         }
     }
 
-    @Override
     public Role createRole(EnumRoles role) {
 
         EntityManager em = emf.createEntityManager();
@@ -66,7 +63,6 @@ public class UserDao implements IUserDao, ISecurityDAO {
         }
     }
 
-    @Override
     public User addUserRole(String username, EnumRoles role) {
 
         EntityManager em = emf.createEntityManager();
@@ -124,7 +120,6 @@ public class UserDao implements IUserDao, ISecurityDAO {
         }
     }
 
-    @Override
     public User createUser(String username, String password) {
 
         EntityManager em = emf.createEntityManager();
@@ -161,7 +156,6 @@ public class UserDao implements IUserDao, ISecurityDAO {
         }
     }
 
-    @Override
     public User findUserById(Integer id) {
 
         EntityManager em = emf.createEntityManager();
@@ -174,7 +168,6 @@ public class UserDao implements IUserDao, ISecurityDAO {
         }
     }
 
-    @Override
     public User updateUser(User user) {
 
         EntityManager em = emf.createEntityManager();
@@ -201,7 +194,6 @@ public class UserDao implements IUserDao, ISecurityDAO {
         }
     }
 
-    @Override
     public void deleteUser(User user) {
 
         EntityManager em = emf.createEntityManager();

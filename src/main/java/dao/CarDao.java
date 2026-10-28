@@ -8,10 +8,9 @@ import jakarta.persistence.NoResultException;
 
 import java.util.List;
 
-public class CarDao implements ICarDao {
+public class CarDao {
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    @Override
     public Car createCar(Car car) {
         EntityManager em = emf.createEntityManager();
 
@@ -69,8 +68,6 @@ public class CarDao implements ICarDao {
         }
     }
 
-
-    @Override
     public List<Car> findAllcars() {
         EntityManager em = emf.createEntityManager();
 
@@ -88,7 +85,6 @@ public class CarDao implements ICarDao {
         }
     }
 
-    @Override
     public Car updateCar(Car car) {
         EntityManager em = emf.createEntityManager();
 
@@ -111,7 +107,6 @@ public class CarDao implements ICarDao {
         }
     }
 
-    @Override
     public void deleteCar(Car car) {
         EntityManager em = emf.createEntityManager();
 
@@ -133,7 +128,6 @@ public class CarDao implements ICarDao {
         }
     }
 
-    @Override
     public List<Car> findCarByUserId(Integer userId) {
         EntityManager em = emf.createEntityManager();
 

@@ -8,11 +8,10 @@ import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
-public class ExpenseDao implements IExpenseDao{
+public class ExpenseDao {
 
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    @Override
     public Expense createExpense(Integer carId, Expense expense) {
         EntityManager em = emf.createEntityManager();
 
@@ -43,7 +42,6 @@ public class ExpenseDao implements IExpenseDao{
         }
     }
 
-    @Override
     public Expense findExpenseById(Integer id) {
         EntityManager em = emf.createEntityManager();
 
@@ -54,7 +52,6 @@ public class ExpenseDao implements IExpenseDao{
         }
     }
 
-    @Override
     public List<Expense> findAllExpenses() {
         EntityManager em = emf.createEntityManager();
 
@@ -68,7 +65,6 @@ public class ExpenseDao implements IExpenseDao{
         }
     }
 
-    @Override
     public List<Expense> findExpenseByCarId(Integer carId) {
         EntityManager em = emf.createEntityManager();
 
@@ -84,7 +80,6 @@ public class ExpenseDao implements IExpenseDao{
         }
     }
 
-    @Override
     public List<Expense> findExpenseByCarIdAndCategory(
             Integer carId,
             String category
@@ -106,7 +101,6 @@ public class ExpenseDao implements IExpenseDao{
         }
     }
 
-    @Override
     public double getTotalExpensesForCar(Integer carId) {
         EntityManager em = emf.createEntityManager();
 
@@ -125,7 +119,6 @@ public class ExpenseDao implements IExpenseDao{
         }
     }
 
-    @Override
     public Expense updateExpense(Expense expense) {
         EntityManager em = emf.createEntityManager();
 
@@ -147,7 +140,6 @@ public class ExpenseDao implements IExpenseDao{
         }
     }
 
-    @Override
     public void deleteExpense(Integer id) {
         EntityManager em = emf.createEntityManager();
 

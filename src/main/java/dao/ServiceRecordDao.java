@@ -7,10 +7,9 @@ import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
-public class ServiceRecordDao implements IServiceRecordDao{
+public class ServiceRecordDao {
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    @Override
     public ServiceRecord createServiceRecord(ServiceRecord serviceRecord) {
         EntityManager em = emf.createEntityManager();
 
@@ -32,7 +31,6 @@ public class ServiceRecordDao implements IServiceRecordDao{
         }
     }
 
-    @Override
     public ServiceRecord findServiceRecordById(Integer id) {
         EntityManager em = emf.createEntityManager();
 
@@ -43,7 +41,6 @@ public class ServiceRecordDao implements IServiceRecordDao{
         }
     }
 
-    @Override
     public List<ServiceRecord> findAllServiceRecords() {
         EntityManager em = emf.createEntityManager();
 
@@ -57,7 +54,6 @@ public class ServiceRecordDao implements IServiceRecordDao{
         }
     }
 
-    @Override
     public List<ServiceRecord> findServiceRecordByCarId(Integer carId) {
         EntityManager em = emf.createEntityManager();
 
@@ -73,7 +69,6 @@ public class ServiceRecordDao implements IServiceRecordDao{
         }
     }
 
-    @Override
     public ServiceRecord updateServiceRecord(ServiceRecord serviceRecord) {
         EntityManager em = emf.createEntityManager();
 
@@ -96,7 +91,6 @@ public class ServiceRecordDao implements IServiceRecordDao{
         }
     }
 
-    @Override
     public void deleteServiceRecord(Integer id) {
         EntityManager em = emf.createEntityManager();
 
@@ -121,7 +115,6 @@ public class ServiceRecordDao implements IServiceRecordDao{
         }
     }
 
-    @Override
     public List<ServiceRecord> findServiceRecordByCarIdOrderByDateDesc(
             Integer carId) {
 

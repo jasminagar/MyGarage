@@ -1,15 +1,13 @@
 package routes;
 
 import io.javalin.apibuilder.EndpointGroup;
-import security.ISecurityController;
-
+import security.SecurityController;
 import static io.javalin.apibuilder.ApiBuilder.post;
 
 public class SecurityRoutes {
+    private final SecurityController securityController;
 
-    private ISecurityController securityController;
-
-    public SecurityRoutes(ISecurityController securityController) {
+    public SecurityRoutes(SecurityController securityController) {
         this.securityController = securityController;
     }
 
