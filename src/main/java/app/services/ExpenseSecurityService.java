@@ -25,21 +25,34 @@ public class ExpenseSecurityService {
         this.service = service;
     }
 
-    public Expense createExpenseForUser(Integer carId, String username, boolean isAdmin, Expense expense){
+
+    public Expense createExpenseForUser(
+            Integer carId,
+            String username,
+            boolean isAdmin,
+            Expense expense) {
+
         Car car = carDao.findCarById(carId);
+
         if (car == null) {
-            return null;
+            throw new NotFoundResponse(
+                    "Car not found with ID: " + carId
+            );
         }
 
-        if (!isAdmin){
-          Car ownedCar = service.findCarForUser(carId, username);
+        if (!isAdmin) {
+            Car ownedCar = service.findCarForUser(carId, username);
+
             if (ownedCar == null) {
-                return null;
+                throw new ForbiddenResponse(
+                        "You do not have access to car ID: " + carId
+                );
             }
         }
 
         return expenseDao.createExpense(carId, expense);
     }
+
 
 
     public Expense updateExpense(
@@ -102,24 +115,42 @@ public class ExpenseSecurityService {
     }
 
 
-    public boolean deleteExpenseForCar(Integer expenseId, String username, boolean isAdmin){
+
+    public boolean deleteExpenseForCar(
+            Integer expenseId,
+            String username,
+            boolean isAdmin) {
+
         Expense expense = expenseDao.findExpenseById(expenseId);
+
         if (expense == null) {
-            return false;
+            throw new NotFoundResponse(
+                    "Expense not found with ID: " + expenseId
+            );
         }
 
-        if (isAdmin){
+        if (isAdmin) {
             expenseDao.deleteExpense(expenseId);
             return true;
         }
 
+        if (expense.getCar() == null) {
+            throw new NotFoundResponse(
+                    "Car associated with expense was not found"
+            );
+        }
+
         Integer carId = expense.getCar().getId();
         Car ownedCar = service.findCarForUser(carId, username);
+
         if (ownedCar == null) {
-            return false;
+            throw new ForbiddenResponse(
+                    "You do not have access to expense ID: " + expenseId
+            );
         }
 
         expenseDao.deleteExpense(expenseId);
         return true;
     }
+
 }
