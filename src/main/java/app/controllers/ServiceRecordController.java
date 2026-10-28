@@ -5,7 +5,7 @@ import app.entities.ServiceRecord;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
 import app.security.EnumRoles;
-import app.services.ImportVehicleService;
+import app.services.VehicleService;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import static io.javalin.apibuilder.ApiBuilder.get;
 public class ServiceRecordController {
 
     private final ServiceRecordDao serviceRecordDao;
-    private final ImportVehicleService importVehicleService;
+    private final VehicleService importVehicleService;
 
-    public ServiceRecordController(ServiceRecordDao serviceRecordDao, ImportVehicleService importVehicleService) {
+    public ServiceRecordController(ServiceRecordDao serviceRecordDao, VehicleService importVehicleService) {
 
         this.serviceRecordDao = serviceRecordDao;
         this.importVehicleService = importVehicleService;

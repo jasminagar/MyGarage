@@ -40,7 +40,9 @@ public class ApplicationConfig {
     }
     public static Javalin startServer(int port) {
         userDao = new UserDao();
-        securityController = new SecurityController(userDao);
+        AppConfig appConfig = new AppConfig();
+        TokenService tokenService = new TokenService(appConfig);
+        securityController = new SecurityController(userDao, tokenService);
         SecurityRoutes securityRoutes = new SecurityRoutes(securityController);
 
         CarDao carDao = new CarDao();
@@ -48,11 +50,11 @@ public class ApplicationConfig {
         ModificationDao modificationDao = new ModificationDao();
         ExpenseDao expenseDao = new ExpenseDao();
 
-        VehicleApiReader vehicleApiReader = new VehicleApiReader();
+        MotorApiReader vehicleApiReader = new MotorApiReader();
         ConvertToEntity converter = new ConvertToEntity();
 
-        ImportVehicleService importVehicleService =
-                new ImportVehicleService(
+        VehicleService importVehicleService =
+                new VehicleService(
                         vehicleApiReader,
                         converter,
                         carDao,
@@ -83,6 +85,9 @@ public class ApplicationConfig {
         CarImportController carImportController =
                 new CarImportController(importVehicleService, userDao);
 
+        AuthenticationService authenticate = new AuthenticationService(tokenService);
+        AuthorizationService authorize = new AuthorizationService();
+
         routes = new Routes(
                 carController,
                 userController,
@@ -94,15 +99,10 @@ public class ApplicationConfig {
         );
 
         Javalin app = Javalin.create(ApplicationConfig::configuration);
-        app.beforeMatched(securityController::authenticate);
-        app.beforeMatched(securityController::authorize);
-        app.get("/", ctx -> ctx.result("Velkommen"));
+        app.beforeMatched(authenticate::authenticate);
+        app.beforeMatched(authorize::authorize);
         app.start(port);
 
         return app;
-    }
-
-    public static void stopServer(Javalin app) {
-        app.stop();
     }
 }

@@ -1,16 +1,39 @@
-package app.security;
+package app.services;
 
+import app.config.AppConfig;
+import app.dto.UserDTO;
+import app.security.EnumRoles;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import app.dto.UserDTO;
+import io.javalin.http.UnauthorizedResponse;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-public class TokenSecurity {
+public class TokenService {
 
-    public String  createToken(UserDTO userDTO, String issuer, String expTime, String secret){
+    private final AppConfig appConfig;
+
+    public TokenService(AppConfig appConfig) {
+        this.appConfig = appConfig;
+    }
+
+    public String createTokenValues(UserDTO user) {
+        String issuer = appConfig.getSetting("ISSUER");
+        String expirationTime = appConfig.getSetting("TOKEN_EXPIRE_TIME");
+        String secret = appConfig.getSetting("SECRET_KEY");
+
+        return createToken(
+                user,
+                issuer,
+                expirationTime,
+                secret
+        );
+    }
+
+    private String  createToken(UserDTO userDTO, String issuer, String expTime, String secret){
         long expirationMillis = Long.parseLong(expTime);
         if (expirationMillis <= 0 || issuer == null || issuer.isBlank()) {
             throw new IllegalArgumentException("Issuer and positive expiration are required");
@@ -31,6 +54,21 @@ public class TokenSecurity {
                 .sign(signingAlgorithm(secret));
     }
 
+    public UserDTO verifyToken(String token) {
+        String secret = appConfig.getSetting("SECRET_KEY");
+
+        try {
+            if (!tokenIsValid(token, secret)
+                    || !tokenNotExpired(token)) {
+                throw new UnauthorizedResponse("Invalid or expired token");
+            }
+
+            return getUserWithRolesFromToken(token);
+
+        } catch (JWTVerificationException e) {
+            throw new UnauthorizedResponse("Could not verify token");
+        }
+    }
 
     /** Verifies the signature, expiry, and required identity claims. */
     public boolean tokenIsValid(String token, String secret){

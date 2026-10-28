@@ -3,12 +3,16 @@ package app.dao;
 import app.config.HibernateConfig;
 import app.entities.Role;
 import app.entities.User;
+import app.exceptions.UserAlreadyExistsException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import app.security.EnumRoles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDao {
 
+    private final Logger logger = LoggerFactory.getLogger(UserDao.class);
     private final EntityManagerFactory emf =
             HibernateConfig.getEntityManagerFactory();
 
@@ -127,10 +131,20 @@ public class UserDao {
         try {
             em.getTransaction().begin();
 
+            Long count = em.createQuery(
+                            "select count(u) from User u where u.username = :username",
+                            Long.class
+                    ).setParameter("username", username)
+                    .getSingleResult();
+
+            if (count > 0) {
+                throw new UserAlreadyExistsException();
+            }
+
             User user = new User(username, password);
 
             Role userRole = em.createQuery(
-                            "SELECT r FROM Role r WHERE r.role = :role",
+                            "select r from Role r where r.role = :role",
                             Role.class
                     )
                     .setParameter("role", EnumRoles.USER)

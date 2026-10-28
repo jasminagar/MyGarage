@@ -51,4 +51,23 @@ public class HibernateConfig {
         props.put("hibernate.connection.username", username);
         props.put("hibernate.connection.password", password);
     }
+
+    public static synchronized void useTestDatabase(
+            String jdbcUrl,
+            String username,
+            String password
+    ) {
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
+
+        Properties props = HibernateBaseProperties.createBase();
+
+        props.put("hibernate.hbm2ddl.auto", "create-drop");
+        props.put("hibernate.connection.url", jdbcUrl);
+        props.put("hibernate.connection.username", username);
+        props.put("hibernate.connection.password", password);
+
+        emf = HibernateEmfBuilder.build(props);
+    }
 }

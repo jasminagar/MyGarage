@@ -6,15 +6,16 @@ import app.dto.VehicleDTO;
 import app.entities.Car;
 import app.entities.ServiceRecord;
 import app.entities.User;
+import io.javalin.http.BadRequestResponse;
 
-public class ImportVehicleService {
+public class VehicleService {
 
-    private final VehicleApiReader apiReader;
+    private final MotorApiReader apiReader;
     private final ConvertToEntity converter;
     private final CarDao carDao;
     private final ServiceRecordDao serviceRecordDao;
 
-    public ImportVehicleService(VehicleApiReader apiReader, ConvertToEntity converter, CarDao carDao, ServiceRecordDao serviceRecordDao) {
+    public VehicleService(MotorApiReader apiReader, ConvertToEntity converter, CarDao carDao, ServiceRecordDao serviceRecordDao) {
         this.apiReader = apiReader;
         this.converter = converter;
         this.carDao = carDao;
@@ -22,6 +23,11 @@ public class ImportVehicleService {
     }
 
     public Car importVehicle(String registrationNumber, User user) {
+        if (registrationNumber == null ||
+                !registrationNumber.matches("[A-Z]{2}\\d{5}")) {
+            throw new BadRequestResponse("Invalid registration number format");
+        }
+
         String json = apiReader.getVehicle(registrationNumber);
         VehicleDTO vehicleDTO = apiReader.convertFromJson(json);
 

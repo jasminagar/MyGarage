@@ -1,4 +1,4 @@
-package app.Exceptions;
+package app.exceptions;
 
 public class ApiException extends RuntimeException {
     private int code;

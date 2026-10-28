@@ -95,7 +95,7 @@ public class ExpenseSecurityService {
             return false;
         }
 
-        expenseDao.deleteExpense(carId);
+        expenseDao.deleteExpense(expenseId);
         return true;
     }
 }

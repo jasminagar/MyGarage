@@ -1,9 +1,9 @@
 ### POST login and create token
-POST http://165.245.241.134:7070/api/v1/auth/login
+POST http://localhost:7070/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "username": "bob200 ",
+  "username": "bob80",
   "password": "1234"
 }
 
@@ -12,11 +12,11 @@ Content-Type: application/json
 %}
 
 ### POST for register user
-POST http://165.245.241.134:7070/api/v1/auth/register
+POST http://localhost:7070/api/v1/auth/register
 Content-Type: application/json
 
 {
-  "username": "bob200",
+  "username": "bob80",
   "password": "1234"
 }
 
