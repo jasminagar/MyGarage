@@ -39,5 +39,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/mygarage:latest
-          no-cache: true
-          no-cache-filters: []
+          no-cache: true          # <--- Tvinger et 100% rent build
+          no-cache-filters: [ ]    # <--- Sletter alle cache-referencer
+
