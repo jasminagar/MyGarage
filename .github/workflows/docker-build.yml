@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, hibernate ]
   pull_request:
-    branches: [ main ] # RETTET HER: Nu står det korrekt i forhold til YAML-reglerne
+    branches: [ main ]
 
 jobs:
   build:
@@ -39,6 +39,4 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/mygarage:latest
-          no-cache: true          # <--- Tvinger et 100% rent build
-          no-cache-filters: [ ]    # <--- Sletter alle cache-referencer
-
+          no-cache: true # <--- Vi beholder kun denne, som sletter cachen fejlfrit
