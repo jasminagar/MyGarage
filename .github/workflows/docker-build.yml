@@ -40,3 +40,4 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/mygarage:latest
           no-cache: true
+          no-cache-filters: []
