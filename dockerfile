@@ -7,4 +7,4 @@ COPY target/backendPortifolio-1.0-SNAPSHOT.jar app.jar
 EXPOSE 7070
 
 # Command to run your app
-CMD ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
