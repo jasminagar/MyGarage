@@ -274,6 +274,39 @@ java -jar target/app.jar
 
 Ensure that the database and any required application configuration are available before starting the application.
 
+# User stories
+
+- US-01: Opret bruger
+Som ny bruger vil jeg kunne oprette en konto, så jeg kan bruge MyGarage.
+
+- US-02: Log ind
+Som bruger vil jeg kunne logge ind, så jeg får adgang til mine egne biler..
+
+- US-03: Administrer biler
+Som bruger vil jeg kunne oprette, se, redigere og slette mine biler, så jeg kan holde styr på dem.
+
+- US-04: Importer biloplysninger
+Som bruger vil jeg kunne importere oplysninger om en bil via registreringsnummer, så jeg slipper for at indtaste alle oplysninger manuelt.
+
+- US-05: Administrer servicehistorik
+Som bruger vil jeg kunne gemme og se synshistorikken for mine biler, så jeg kan holde styr på tidligere og kommende vedligeholdelse.
+
+- US-06: Registrer udgifter og ændringer
+Som bruger vil jeg kunne registrere udgifter og ændringer på mine biler, så jeg kan holde styr på bilernes historik og omkostninger.
+
+- US-07: Rediger biloplysninger
+Som bruger vil jeg kunne opdatere enkelte oplysninger om mine biler, uden at skulle ændre alle oplysningerne.
+
+- US-08: Beskyt mine oplysninger
+Som bruger vil jeg kun kunne se og ændre mine egne biler og tilhørende oplysninger, så andre brugere ikke kan få adgang til eller ændre mine data. 
+
+- US-09: Håndter fejl
+Som bruger vil jeg have tydelige fejlbeskeder, når noget går galt, så jeg forstår, hvorfor en handling ikke lykkes.
+
+- US-10: Se bilens samlede udgifter
+Som bruger vil jeg kunne se de samlede udgifter for mine biler, så jeg kan få et overblik over, hvor meget jeg bruger på vedligeholdelse og andre bilrelaterede omkostninger. 
+
+
 # Development Notes
 
 ## Hibernate Lazy Loading
