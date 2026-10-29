@@ -5,7 +5,7 @@ Users can manage their vehicles and keep track of service records, expenses and 
 ## Project Links
 
 - **Source code:** [GitHub Repository](https://github.com/jasminagar/MyGarage)
-- **Portfolio:** [View Portfolio](https://jasminagar.github.io/backendPortifolio/)
+- **Portfolio:** [View Portfolio](https://jasminagar.github.io/MyGarage/)
 - **Deployed link:** [Deployed API](http://165.245.241.134:7070/api/v1/)
 
 ## Features
