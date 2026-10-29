@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class ServiceRecord {
+public class InspectionRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

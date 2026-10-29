@@ -1,16 +1,16 @@
 package app.dao;
 
 import app.config.HibernateConfig;
-import app.entities.ServiceRecord;
+import app.entities.InspectionRecord;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
-public class ServiceRecordDao {
+public class InspectionRecordDao {
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    public ServiceRecord createServiceRecord(ServiceRecord serviceRecord) {
+    public InspectionRecord createServiceRecord(InspectionRecord serviceRecord) {
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -31,36 +31,36 @@ public class ServiceRecordDao {
         }
     }
 
-    public ServiceRecord findServiceRecordById(Integer id) {
+    public InspectionRecord findServiceRecordById(Integer id) {
         EntityManager em = emf.createEntityManager();
 
         try {
-            return em.find(ServiceRecord.class, id);
+            return em.find(InspectionRecord.class, id);
         } finally {
             em.close();
         }
     }
 
-    public List<ServiceRecord> findAllServiceRecords() {
+    public List<InspectionRecord> findAllServiceRecords() {
         EntityManager em = emf.createEntityManager();
 
         try {
             return em.createQuery(
-                    "SELECT s FROM ServiceRecord s",
-                    ServiceRecord.class
+                    "SELECT s FROM InspectionRecord s",
+                    InspectionRecord.class
             ).getResultList();
         } finally {
             em.close();
         }
     }
 
-    public List<ServiceRecord> findServiceRecordByCarId(Integer carId) {
+    public List<InspectionRecord> findServiceRecordByCarId(Integer carId) {
         EntityManager em = emf.createEntityManager();
 
         try {
             return em.createQuery(
-                            "SELECT s FROM ServiceRecord s WHERE s.car.id = :carId",
-                            ServiceRecord.class
+                            "SELECT s FROM InspectionRecord s WHERE s.car.id = :carId",
+                            InspectionRecord.class
                     )
                     .setParameter("carId", carId)
                     .getResultList();
@@ -69,13 +69,13 @@ public class ServiceRecordDao {
         }
     }
 
-    public ServiceRecord updateServiceRecord(ServiceRecord serviceRecord) {
+    public InspectionRecord updateServiceRecord(InspectionRecord serviceRecord) {
         EntityManager em = emf.createEntityManager();
 
         try {
             em.getTransaction().begin();
 
-            ServiceRecord updatedServiceRecord =
+            InspectionRecord updatedServiceRecord =
                     em.merge(serviceRecord);
 
             em.getTransaction().commit();
@@ -97,8 +97,8 @@ public class ServiceRecordDao {
         try {
             em.getTransaction().begin();
 
-            ServiceRecord serviceRecord =
-                    em.find(ServiceRecord.class, id);
+            InspectionRecord serviceRecord =
+                    em.find(InspectionRecord.class, id);
 
             if (serviceRecord != null) {
                 em.remove(serviceRecord);
@@ -115,17 +115,17 @@ public class ServiceRecordDao {
         }
     }
 
-    public List<ServiceRecord> findServiceRecordByCarIdOrderByDateDesc(
+    public List<InspectionRecord> findServiceRecordByCarIdOrderByDateDesc(
             Integer carId) {
 
         EntityManager em = emf.createEntityManager();
 
         try {
             return em.createQuery(
-                            "SELECT s FROM ServiceRecord s " +
+                            "SELECT s FROM InspectionRecord s " +
                                     "WHERE s.car.id = :carId " +
                                     "ORDER BY s.date DESC",
-                            ServiceRecord.class
+                            InspectionRecord.class
                     )
                     .setParameter("carId", carId)
                     .getResultList();

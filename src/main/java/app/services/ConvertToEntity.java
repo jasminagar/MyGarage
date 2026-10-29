@@ -3,7 +3,7 @@ package app.services;
 import app.dto.MotInfoDTO;
 import app.dto.VehicleDTO;
 import app.entities.Car;
-import app.entities.ServiceRecord;
+import app.entities.InspectionRecord;
 import java.time.LocalDate;
 
 public class ConvertToEntity {
@@ -44,14 +44,14 @@ public class ConvertToEntity {
         return car;
     }
 
-    public ServiceRecord convertToServiceRecord(VehicleDTO vehicleDTO, Car car) {
+    public InspectionRecord convertToServiceRecord(VehicleDTO vehicleDTO, Car car) {
         if (vehicleDTO.getMotInfo() == null) {
             return null;
       }
 
         MotInfoDTO motInfo = vehicleDTO.getMotInfo();
 
-        ServiceRecord serviceRecord = new ServiceRecord();
+        InspectionRecord serviceRecord = new InspectionRecord();
 
         serviceRecord.setDate(LocalDate.parse(motInfo.getDate()));
 

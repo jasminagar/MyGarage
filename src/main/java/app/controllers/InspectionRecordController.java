@@ -1,7 +1,7 @@
 package app.controllers;
 
-import app.dao.ServiceRecordDao;
-import app.entities.ServiceRecord;
+import app.dao.InspectionRecordDao;
+import app.entities.InspectionRecord;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
 import app.security.EnumRoles;
@@ -12,12 +12,12 @@ import java.util.List;
 import static io.javalin.apibuilder.ApiBuilder.delete;
 import static io.javalin.apibuilder.ApiBuilder.get;
 
-public class ServiceRecordController {
+public class InspectionRecordController {
 
-    private final ServiceRecordDao serviceRecordDao;
+    private final InspectionRecordDao serviceRecordDao;
     private final VehicleService importVehicleService;
 
-    public ServiceRecordController(ServiceRecordDao serviceRecordDao, VehicleService importVehicleService) {
+    public InspectionRecordController(InspectionRecordDao serviceRecordDao, VehicleService importVehicleService) {
 
         this.serviceRecordDao = serviceRecordDao;
         this.importVehicleService = importVehicleService;
@@ -34,7 +34,7 @@ public class ServiceRecordController {
     }
 
     private void getAllServiceRecords(Context context) {
-        List<ServiceRecord> serviceRecords =
+        List<InspectionRecord> serviceRecords =
                 serviceRecordDao.findAllServiceRecords();
 
         context.json(serviceRecords);
@@ -43,7 +43,7 @@ public class ServiceRecordController {
     private void getServiceRecordById(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
 
-        ServiceRecord serviceRecord =
+        InspectionRecord serviceRecord =
                 serviceRecordDao.findServiceRecordById(id);
 
         if (serviceRecord == null) {
@@ -58,7 +58,7 @@ public class ServiceRecordController {
     private void getServiceRecordsByCarId(Context context) {
         Integer carId = Integer.parseInt(context.pathParam("carId"));
 
-        List<ServiceRecord> serviceRecords =
+        List<InspectionRecord> serviceRecords =
                 serviceRecordDao.findServiceRecordByCarId(carId);
 
         context.json(serviceRecords);
@@ -67,7 +67,7 @@ public class ServiceRecordController {
     private void getServiceRecordsByCarIdOrderByDate(Context context) {
         Integer carId = Integer.parseInt(context.pathParam("carId"));
 
-        List<ServiceRecord> serviceRecords =
+        List<InspectionRecord> serviceRecords =
                 serviceRecordDao.findServiceRecordByCarIdOrderByDateDesc(carId);
 
         context.json(serviceRecords);
@@ -76,7 +76,7 @@ public class ServiceRecordController {
     private void deleteServiceRecord(Context context) {
         Integer id = Integer.parseInt(context.pathParam("id"));
 
-        ServiceRecord serviceRecord =
+        InspectionRecord serviceRecord =
                 serviceRecordDao.findServiceRecordById(id);
 
         if (serviceRecord == null) {

@@ -2,13 +2,13 @@ package app.config;
 
 import app.controllers.CarController;
 import app.controllers.UserController;
-import app.controllers.ServiceRecordController;
+import app.controllers.InspectionRecordController;
 import app.controllers.ModificationController;
 import app.controllers.ExpenseController;
 import app.controllers.CarImportController;
 import app.dao.UserDao;
 import app.dao.CarDao;
-import app.dao.ServiceRecordDao;
+import app.dao.InspectionRecordDao;
 import app.dao.ModificationDao;
 import app.dao.ExpenseDao;
 import io.javalin.Javalin;
@@ -46,7 +46,7 @@ public class ApplicationConfig {
         SecurityRoutes securityRoutes = new SecurityRoutes(securityController);
 
         CarDao carDao = new CarDao();
-        ServiceRecordDao serviceRecordDao = new ServiceRecordDao();
+        InspectionRecordDao serviceRecordDao = new InspectionRecordDao();
         ModificationDao modificationDao = new ModificationDao();
         ExpenseDao expenseDao = new ExpenseDao();
 
@@ -68,8 +68,8 @@ public class ApplicationConfig {
         CarController carController = new CarController(carDao, userDao, securityService);
         UserController userController = new UserController(userDao);
 
-        ServiceRecordController serviceRecordController =
-                new ServiceRecordController(
+        InspectionRecordController serviceRecordController =
+                new InspectionRecordController(
                         serviceRecordDao,
                         importVehicleService
                 );

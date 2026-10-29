@@ -10,13 +10,13 @@ public class Routes {
 
     private final CarController carController;
     private final UserController userController;
-    private final ServiceRecordController serviceRecordController;
+    private final InspectionRecordController serviceRecordController;
     private final ModificationController modificationController;
     private final ExpenseController expenseController;
     private final CarImportController carImportController;
     private SecurityRoutes securityRoutes;
 
-    public Routes(CarController carController, UserController userController, ServiceRecordController serviceRecordController, ModificationController modificationController, ExpenseController expenseController, CarImportController carImportController, SecurityRoutes securityRoutes) {
+    public Routes(CarController carController, UserController userController, InspectionRecordController serviceRecordController, ModificationController modificationController, ExpenseController expenseController, CarImportController carImportController, SecurityRoutes securityRoutes) {
         this.carController = carController;
         this.userController = userController;
         this.serviceRecordController = serviceRecordController;
