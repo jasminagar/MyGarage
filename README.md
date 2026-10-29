@@ -65,39 +65,42 @@ MyGarage uses a Java backend with a REST API, persistent data storage and integr
 
 The diagram represents the main responsibilities of the system rather than every class or dependency in the implementation.
 
+
 ### Key Design Decisions
 
 **REST API with Javalin**
 
-Javalin provides HTTP routing for the backend. Keeping the API separate from the client makes it possible to test endpoints independently and interact with the system using tools such as Postman or REST Assured.
+Javalin was chosen to provide a lightweight REST API for communication between the client and the backend. A REST-based architecture separates the application's interface from its business logic and data management, allowing the backend to be developed, tested and maintained independently of the client. HTTP endpoints expose specific operations through standard methods such as GET, POST, PUT and DELETE, making the API predictable and easy to integrate with external tools. This separation also simplifies automated testing, since endpoints can be tested independently using tools such as Postman and REST Assured without requiring the client application to run.
 
 **Persistence with JPA and Hibernate**
 
-JPA entities represent persistent application data, while Hibernate handles the object-relational mapping. PostgreSQL stores the data between application sessions.
+JPA and Hibernate were selected to separate the application's domain model from the underlying database operations. JPA provides a standard way to define entities and their relationships, while Hibernate implements the object-relational mapping between Java objects and relational database tables. This reduces the need to write repetitive SQL queries and makes it easier to manage relationships between entities. PostgreSQL was chosen for persistent storage because it provides relational data integrity, structured querying and transaction support. Together, these technologies provide a maintainable persistence layer in which application data remains available across restarts, while database constraints and transactions help preserve consistency.
 
 **JWT authentication and authorization**
 
-JWT provides a mechanism for identifying authenticated users across API requests. Authentication alone is not sufficient to protect resources, so endpoint authorization also considers user roles and resource ownership.
+JWT-based authentication was selected to identify users across separate HTTP requests without requiring the server to maintain a traditional session for every client. After successful authentication, the client receives a token that can be included in subsequent requests. The backend validates the token before allowing access to protected endpoints. However, authentication and authorization serve different purposes: authentication establishes who the user is, while authorization determines what the user is permitted to do. The design therefore considers both user roles and resource ownership when protecting operations. Role-based checks restrict access to functionality according to a user's permissions, while ownership checks ensure that users cannot access or modify resources belonging to other users merely by changing an identifier in a request. This separation provides a clearer security model and reduces the risk of unauthorized data access.
 
 **DTOs and external API integration**
 
-MotorAPI integration introduces the need to handle external JSON responses separately from internal database entities. DTOs provide a boundary between incoming data and the application's persistence model, making data conversion and validation easier to manage.
+DTOs (Data Transfer Objects) were introduced to separate data exchanged through the API from the entities used internally by the application. This is particularly important when integrating with MotorAPI, because external responses may contain fields, naming conventions or data structures that do not match the application's database model. Instead of coupling persistent entities directly to the external API, the response can be mapped to dedicated DTOs and then converted into the appropriate internal representation. This creates a clear boundary between external data and the application's domain model. It also makes validation, error handling and data transformation easier to manage, while reducing the impact of changes to the external API on the persistence layer. The same principle can be applied to incoming client requests, ensuring that only intended fields can be modified through the API.
 
 **Partial updates**
 
-Partial updates allow a client to modify selected vehicle fields without resending every field. This requires care when distinguishing omitted fields from explicitly supplied values.
+Partial updates were chosen to allow clients to modify individual vehicle attributes without resending the complete resource. This reduces unnecessary data transfer and makes the API more convenient to use, particularly when only a small number of fields need to change. However, partial updates introduce an important design consideration: the backend must distinguish between a field that was omitted from the request and a field that was explicitly supplied with a value such as null. An omitted field should generally remain unchanged, whereas an explicitly supplied value must be handled according to the field's validation and business rules. The implementation must therefore apply updates selectively, validate the resulting data and prevent protected or immutable fields from being modified unintentionally. This approach provides flexibility for clients while preserving the integrity of the stored vehicle data.
 
 **Automated testing**
 
-The project includes tools for unit testing, API testing and mocking. These are used to verify application functionality, API responses, authentication and vehicle import operations.
+Automated testing was included to verify the behaviour of the application at different levels and to reduce the risk of regressions when the implementation changes. Unit tests can verify individual components and business rules in isolation, while API tests can check endpoint behaviour, HTTP status codes, response structures and error handling. Authentication and authorization tests are particularly important because they verify that protected operations reject missing or invalid tokens and prevent users from accessing resources they do not own. Mocking external dependencies, such as MotorAPI, allows vehicle import logic to be tested without relying on network availability or changes in the external service. This makes tests more predictable and repeatable. Combining these testing approaches provides greater confidence that individual components work correctly and that the backend behaves as expected when its components interact.
 
 ## Data Model
 
-The database model is centred around users and their vehicles, with related entities for service records, expenses and modifications. Each user can own multiple cars, and each car can have multiple service records, expenses and modifications.
+The database model is centred around users and their vehicles, with separate entities for service records, expenses and modifications. This structure reflects a deliberate design choice to separate different types of information into distinct entities rather than storing all vehicle-related data in a single table. Each user can own multiple cars, and each car can have multiple service records, expenses and modifications. This one-to-many relationship structure reduces data duplication and allows each type of record to be managed independently. It also makes the model easier to extend, for example, if additional types of vehicle-related records are introduced in the future.
 
-The model also includes a role-based authorization structure, where users can be assigned roles to control access to protected functionality.
+The database follows a normalized structure by separating data according to its purpose and relationships. User information is stored independently of vehicle data, while service records, expenses and modifications are associated with the relevant vehicle through foreign keys. This reduces the risk of update, insertion and deletion anomalies, where the same information would otherwise need to be maintained in multiple places. It also improves data consistency by ensuring that each entity has a clearly defined responsibility and that relationships between records are explicitly represented.
 
-The database uses PostgreSQL with foreign key constraints to define relationships between entities and maintain referential integrity.
+Security is addressed through a role-based authorization structure, where users can be assigned roles that determine which protected functionality they are permitted to access. Separating roles from user and vehicle data makes authorization rules easier to manage and extend. However, role-based authorization alone is not sufficient for protecting user-owned resources. Access control must also consider resource ownership, ensuring that authenticated users can only access or modify vehicles and related records they are authorized to manage. These checks should be enforced by the backend rather than relying on restrictions implemented in the client.
+
+PostgreSQL is used to enforce referential integrity through primary keys, foreign keys and appropriate constraints. These mechanisms prevent invalid relationships, such as records referencing vehicles that do not exist, and help maintain consistency when related data is changed or deleted. Combined with application-level authorization and validation, the database constraints provide an additional layer of protection against inconsistent or invalid data.
 
 The complete database structure and entity relationships are illustrated in the [ER diagram](diagrams/ER-diagram.png).
 
@@ -105,31 +108,31 @@ The complete database structure and entity relationships are illustrated in the 
 
 ### User
 
-Represents a registered user who can log in to the API and manage their own vehicles.
+The User entity represents a registered user who can authenticate with the API and manage their own vehicles. It is a fundamental part of the system because it establishes ownership of data and provides the basis for access control. Each user has a unique username and a securely stored password hash, ensuring that credentials can be verified without storing passwords in plain text.
 
-Each user has a unique username and a securely stored password. Users can be assigned roles that determine which operations they are allowed to perform. The relationship between users and vehicles ensures that each car can be associated with its owner.
+Users can be assigned roles that determine which operations they are permitted to perform. This separates authentication, which establishes the user's identity, from authorization, which determines their permissions. By connecting users to their vehicles, the system can enforce resource ownership and prevent users from accessing or modifying vehicles belonging to other users. This relationship is important not only for security but also for maintaining a clear separation between users' data.
+
+The User entity therefore acts as the starting point for the ownership structure of the database. It allows the application to associate each vehicle with a specific owner and provides a foundation for enforcing access restrictions consistently across vehicle-related operations.
 
 ### Vehicle
 
-Represents a vehicle registered in MyGarage and associated with a specific user.
+The Vehicle entity represents a vehicle registered in MyGarage and serves as the central entity for the application's vehicle-related data. Each vehicle is associated with a specific user, establishing an explicit ownership relationship that allows the backend to determine which user is permitted to manage it.
 
-Each car stores information such as its make, model, year, mileage, registration number and technical specifications. It serves as the central entity for related service records, expenses and modifications.
+A vehicle stores information such as its make, model, year, mileage, registration number and technical specifications. Keeping these attributes together in a dedicated entity provides a single, consistent representation of the vehicle that can be referenced by other parts of the application. This avoids duplicating core vehicle information across service records, expenses and modifications, making the data easier to maintain and reducing the risk of inconsistencies.
 
-Users can create, retrieve, update and delete vehicle information, as well as import vehicle data from MotorAPI.
+The vehicle also acts as the parent entity for related records, including service history, expenses and modifications. This relationship allows the application to maintain a complete history of each vehicle while keeping each type of information separate. For example, multiple service records can be associated with the same vehicle without repeatedly storing its make, model or registration number. This supports a normalized database structure and makes it possible to retrieve both individual records and a vehicle's overall history.
 
-## Security
+Users can create, retrieve, update and delete vehicle information, as well as import vehicle data from MotorAPI. The import functionality reduces the need to enter technical information manually and can improve data consistency when external data is mapped and validated before being stored. Regardless of how a vehicle is created, the backend must verify the user's authorization before allowing access or modifications. This ensures that external data integration and ordinary CRUD operations follow the same ownership and security rules.
 
-Security is an important part of the project rather than an additional feature.
+Together, the User and Vehicle entities establish the core structure of MyGarage: users own vehicles, and vehicles provide the foundation for organizing all associated maintenance, financial and modification data. This relationship connects the application's main functionality with its data integrity and security requirements.
 
-The backend addresses several separate concerns:
+## Security and Input Validation
 
-- **Authentication:** Verify the identity of the requester using JWT.
-- **Password storage:** Use password hashing rather than storing plaintext passwords.
-- **Role-based access control:** Restrict operations according to the user's role.
-- **Ownership checks:** Prevent users from accessing or modifying resources they do not own.
-- **Input handling:** Process request data through the application's data models and conversion logic.
+Security is integrated into the backend layers to protect user accounts, resources, and data. The API layer uses JWT authentication to verify the identity of users making requests. The service layer enforces authorization by checking user roles and resource ownership before allowing operations. The DAO layer handles database access, while entity relationships associate resources with their owners.
 
-A valid token does not automatically grant access to every resource. Authorization must also be enforced at the relevant endpoints.
+Input validation complements these security measures by ensuring that incoming data meets the application's requirements before it is processed or stored. This includes checking data types, required fields, and values to reduce invalid input, prevent data corruption, and minimize security risks. Request data is converted into DTOs and application models, allowing the backend to process it in a controlled manner.
+
+Together, authentication, authorization, ownership checks, and input validation help prevent unauthorized access and ensure that data is handled safely. A valid JWT alone does not guarantee access to a resource; the backend must also verify that the user has permission to perform the requested operation.
 
 # API Documentation
 The API provides multiple endpoints for CRUD operations and security. The most important endpoints are login, register and vehicle import.
@@ -223,14 +226,26 @@ The user does not have the required role or permission.
 
 ## Testing
 
-The Maven configuration includes tools for testing different parts of the backend.
+The backend uses a combination of testing tools to verify individual components, API endpoints and database interactions. Each tool serves a different purpose, helping ensure that the application behaves correctly both in isolation and as a complete system.
 
-- **JUnit:** Test application logic and expected behaviour.
-- **REST Assured:** Exercise HTTP endpoints and inspect responses.
-- **Mockito:** Isolate components by mocking dependencies.
-- **Testcontainers:** Run integration tests against a real PostgreSQL instance in a container.
+- **JUnit:** Provides the foundation for writing and running tests. It is used to verify business logic and expected behaviour, such as calculating modification costs, validating input and handling different outcomes.
+- **Mockito:** Makes it possible to replace dependencies with mock objects. This allows services to be tested independently by controlling the behaviour of DAOs or other dependencies without requiring a real database.
+- **REST Assured:** Tests the REST API through HTTP requests. It is used to verify endpoint behaviour, response status codes and returned data, including successful requests and error responses.
+- **Testcontainers:** Starts a PostgreSQL instance in a container for integration tests. This allows database operations to be tested against a real PostgreSQL database, helping identify issues that mocks alone would not reveal.
 
-Important test scenarios include successful CRUD operations, invalid requests, authentication failures, unauthorized access, ownership restrictions and vehicle import behaviour.
+### Test Scenarios
+
+The tests cover database operations, service-layer security and API behaviour. Different testing tools are used depending on which part of the application is being tested.
+
+- **Expense CRUD operations:** `ExpenseDAOTest` verifies that expenses can be created, retrieved by ID, retrieved by car ID and deleted. It also checks that creating an expense for a nonexistent car throws a `NotFoundResponse`. These tests use PostgreSQL through Testcontainers, allowing the DAO to be tested against a real database.
+
+- **Expense service security:** `ExpenseServiceTest` verifies that an expense cannot be deleted if it does not exist, that administrators can delete expenses, and that users can delete expenses belonging to their own cars. It also tests that users are forbidden from deleting expenses associated with another user's car. Mockito is used to mock the DAO and security service, allowing the authorization logic to be tested independently of the database.
+
+- **Vehicle import authentication:** `ImportVehicleTest` verifies that an unauthenticated request to the vehicle import endpoint receives HTTP 401. This checks that authentication is required before the endpoint can be accessed.
+
+- **Successful vehicle import:** `ImportVehicleTest` logs in with test credentials, extracts the JWT from the login response and uses it to call the import endpoint. The test expects HTTP 201, verifying that the endpoint accepts an authenticated request and reports successful creation.
+
+Together, these tests cover database persistence, resource handling, ownership checks and authentication at different levels of the application. The DAO tests focus on database behaviour, the service tests isolate business and security logic, and the REST Assured tests exercise the API through HTTP requests.
 
 ## Getting Started
 
