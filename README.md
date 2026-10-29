@@ -149,72 +149,128 @@ A valid JWT only establishes the identity of the requester. It does not automati
 
 # API Documentation
 
+## API Documentation
+
 The API exposes endpoints for authentication, vehicle import and CRUD operations on vehicles and their related records. The examples below document selected endpoints; they are not an exhaustive list of every route in the application. Most resource endpoints follow a conventional CRUD structure, but their exact paths, permissions and request bodies depend on the resource.
-CRUD Operations
-Operation	HTTP method	Purpose
-Create	POST	Creates a resource.
-Read	GET	Retrieves a resource or collection.
-Update	PUT	Updates a resource according to the endpoint's implementation.
-Delete	DELETE	Deletes a resource.
 
-Main Endpoints
-Method	Endpoint	Purpose	Authentication
-POST	/api/v1/auth/register	Registers a user account.	Not required
-POST	/api/v1/auth/login	Authenticates a user and returns a JWT.	Not required
-POST	/api/v1/service-records/import/{registrationNumber}	Imports vehicle information using a registration number.	Required (USER or ADMIN)
+### CRUD Operations
 
+| Operation | HTTP Method | Purpose |
+|---|---|---|
+| Create | `POST` | Creates a resource. |
+| Read | `GET` | Retrieves a resource or collection. |
+| Update | `PUT` | Updates a resource according to the endpoint's implementation. |
+| Delete | `DELETE` | Deletes a resource. |
+
+### Main Endpoints
+
+| Method | Endpoint | Purpose | Authentication |
+|---|---|---|---|
+| `POST` | `/api/v1/auth/register` | Registers a user account. | Not required |
+| `POST` | `/api/v1/auth/login` | Authenticates a user and returns a JWT. | Not required |
+| `POST` | `/api/v1/service-records/import/{registrationNumber}` | Imports vehicle information using a registration number. | Required (`USER` or `ADMIN`) |
 
 The table lists selected endpoints to demonstrate the API's main entry points. Other vehicle, service-record, expense and modification operations follow the resource patterns implemented in the source code.
-Authentication
-After a successful login, the client receives a JWT. Include that token in the Authorization header when calling protected endpoints:
+
+### Authentication
+
+After a successful login, the client receives a JWT. Include that token in the `Authorization` header when calling protected endpoints:
+
+```http
 Authorization: Bearer <JWT_TOKEN>
-Replace <JWT_TOKEN> with the token returned by the login endpoint. The backend validates the token and then applies the relevant authorization checks.
+```
+
+Replace `<JWT_TOKEN>` with the token returned by the login endpoint. The backend validates the token and then applies the relevant authorization checks.
 
 When using the IntelliJ HTTP Client, the token can be stored in a global variable after the login request:
+
+```http
 > {% 
     client.global.set("token", response.body.token);
 %}
+```
+
 It can then be reused in subsequent requests:
+
+```http
 Authorization: Bearer {{token}}
-1. Register a User
+```
+
+### 1. Register a User
+
 Creates a new user account. Authentication is not required.
 
-Request
+**Request**
+
+```http
 POST /api/v1/auth/register
 Content-Type: application/json
+```
+
+**Request body**
+
+```json
 {
   "username": "your_username",
   "password": "your_password"
 }
-Successful response — 201 Created
+```
+
+**Successful response — `201 Created`**
+
+```json
 {
   "username": "your_username"
 }
-2. Log In
+```
+
+### 2. Log In
+
 Authenticates a user and returns a JWT for subsequent requests.
 
-Request
+**Request**
+
+```http
 POST /api/v1/auth/login
 Content-Type: application/json
+```
+
+**Request body**
+
+```json
 {
   "username": "your_username",
   "password": "your_password"
 }
-Successful response — 200 OK
+```
+
+**Successful response — `200 OK`**
+
+```json
 {
   "token": "<JWT_TOKEN>",
   "username": "your_username"
 }
-Include the returned token in the Authorization header when accessing protected endpoints.
-3. Import a Vehicle
+```
+
+Include the returned token in the `Authorization` header when accessing protected endpoints.
+
+### 3. Import a Vehicle
+
 Imports available vehicle information using its registration number. The backend retrieves data from MotorAPI and maps the response into the application's data model.
 
-Request
+**Request**
+
+```http
 POST /api/v1/service-records/import/CR48908
 Authorization: Bearer <JWT_TOKEN>
-Replace CR48908 with the vehicle's registration number and <JWT_TOKEN> with a valid token.
+```
 
-Successful response — 201 Created
+Replace `CR48908` with the vehicle's registration number and `<JWT_TOKEN>` with a valid token.
+
+**Successful response — `201 Created`**
+
+```json
 {
   "id": 1,
   "make": "Example Make",
@@ -242,36 +298,51 @@ Successful response — 201 Created
     28
   ]
 }
-The response values are illustrative and are not verified data returned by MotorAPI. The date arrays show the date structure used in the example: [year, month, day]. Actual fields and values depend on the data returned by the external service and the application's mapping.
+```
 
-The endpoint requires authentication and is available to users with the USER or ADMIN role. The backend must also apply the relevant authorization and ownership rules when associating imported data with a user.
-Example: Updating an Expense
-The following example shows an expense update request. The URL contains two identifiers: 60 is the vehicle ID and 10 is the expense ID.
+The response values are illustrative and are not verified data returned by MotorAPI. The date arrays show the date structure used in the example: `[year, month, day]`. Actual fields and values depend on the data returned by the external service and the application's mapping.
 
-Request
+The endpoint requires authentication and is available to users with the `USER` or `ADMIN` role. The backend must also apply the relevant authorization and ownership rules when associating imported data with a user.
+
+### 4. Update an Expense
+
+The following example shows an expense update request. The URL contains two identifiers: `60` is the vehicle ID and `10` is the expense ID.
+
+**Request**
+
+```http
 PUT http://localhost:7070/api/v1/expenses/car/60/update/10
 Authorization: Bearer <JWT_TOKEN>
 Content-Type: application/json
-Request body
+```
+
+**Request body**
+
+```json
 {
   "date": "2026-10-07",
   "category": "TEST",
   "amount": 600,
   "description": "TEST"
 }
+```
+
 The request body contains the expense date, category, amount and description. The example sends all four fields; clients should not assume that omitted fields remain unchanged unless that behaviour is explicitly implemented by the endpoint.
 
-The endpoint requires a valid JWT and is available to users with the USER or ADMIN role. The backend must also verify that the requester is permitted to modify the expense, including checking ownership of the associated vehicle where required.
-HTTP Status Codes
-The API uses HTTP status codes to communicate the outcome of a request. The following table describes common statuses relevant to the documented operations.
-Status code	Meaning
-200 OK	The request completed successfully.
-201 Created	A resource was created successfully.
-400 Bad Request	The request contains invalid data or fails validation.
-401 Unauthorized	Authentication is missing, invalid or unsuccessful.
-403 Forbidden	The user is authenticated but lacks the required permission.
-404 Not Found	The requested resource could not be found.
+The endpoint requires a valid JWT and is available to users with the `USER` or `ADMIN` role. The backend must also verify that the requester is permitted to modify the expense, including checking ownership of the associated vehicle where required.
 
+### HTTP Status Codes
+
+The API uses HTTP status codes to communicate the outcome of a request. The following table describes common statuses relevant to the documented operations.
+
+| Status Code | Meaning |
+|---|---|
+| `200 OK` | The request completed successfully. |
+| `201 Created` | A resource was created successfully. |
+| `400 Bad Request` | The request contains invalid data or fails validation. |
+| `401 Unauthorized` | Authentication is missing, invalid or unsuccessful. |
+| `403 Forbidden` | The user is authenticated but lacks the required permission. |
+| `404 Not Found` | The requested resource could not be found. |
 
 The exact status code and response body for an error depend on the endpoint and the application's exception handling.
 
