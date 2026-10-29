@@ -76,7 +76,7 @@ public class ApplicationConfig {
 
         ModificationSecurityService securityService1 = new ModificationSecurityService(modificationDao, userDao, carDao, service);
         ModificationController modificationController =
-                new ModificationController(modificationDao, securityService1);
+                new ModificationController(modificationDao, securityService1, userDao);
 
         ExpenseSecurityService expenseSecurityService = new ExpenseSecurityService(expenseDao,carDao,userDao, service);
         ExpenseController expenseController =

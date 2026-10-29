@@ -1,10 +1,13 @@
 package app.controllers;
 
 import app.dao.ModificationDao;
+import app.dao.UserDao;
 import app.dto.ModUpdateDTO;
 import app.dto.UserDTO;
 import app.entities.Modification;
+import app.entities.User;
 import io.javalin.apibuilder.EndpointGroup;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
 import app.security.EnumRoles;
@@ -19,14 +22,17 @@ public class ModificationController {
 
     private final ModificationDao modificationDao;
     private final ModificationSecurityService securityService;
+    private final UserDao userDao;
 
-    public ModificationController(ModificationDao modificationDao, ModificationSecurityService securityService) {
+    public ModificationController(ModificationDao modificationDao, ModificationSecurityService securityService, UserDao userDao) {
         this.modificationDao = modificationDao;
         this.securityService = securityService;
+        this.userDao = userDao;
     }
 
     public EndpointGroup getRoutes() {
         return () -> {
+            get("/modifications/{carId}/total-cost", this::getTotalModificationCost, EnumRoles.USER, EnumRoles.ADMIN);
             get("/modifications", this::getAllModifications, EnumRoles.ADMIN);
             get("/modifications/{id}", this::getModificationById, EnumRoles.USER, EnumRoles.ADMIN);
             get("/modifications/car/{carId}", this::getModificationsByCarId, EnumRoles.USER, EnumRoles.ADMIN);
@@ -34,6 +40,33 @@ public class ModificationController {
             put("/modifications/update/{id}", this::updateModification, EnumRoles.USER, EnumRoles.ADMIN);
             delete("/modifications/delete/{id}", this::deleteModification, EnumRoles.USER, EnumRoles.ADMIN);
         };
+    }
+
+    private void getTotalModificationCost(Context context) {
+        Integer carId;
+
+        try {
+            carId = Integer.parseInt(context.pathParam("carId"));
+        } catch (NumberFormatException e) {
+            throw new BadRequestResponse("Invalid car ID");
+        }
+
+        if (carId <= 0) {
+            throw new BadRequestResponse("Car ID must be greater than 0");
+        }
+
+        UserDTO tokenUser = context.attribute("user");
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse("User is not authenticated");
+        }
+
+
+        boolean isAdmin = tokenUser.getRoles().equals(EnumRoles.ADMIN);
+
+        Double totalCost = securityService.getTotalModificationCost(carId,tokenUser.getUsername(), isAdmin);
+
+        context.json(totalCost);
+
     }
 
     private void getAllModifications(Context context) {

@@ -8,6 +8,8 @@ import app.entities.Car;
 import app.entities.Modification;
 import app.entities.User;
 import app.security.EnumRoles;
+import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.NotFoundResponse;
 
 public class ModificationSecurityService {
     private final ModificationDao modificationDao;
@@ -22,10 +24,33 @@ public class ModificationSecurityService {
         this.service = service;
     }
 
+    public Double getTotalModificationCost(Integer carId, String username, boolean isAdmin){
+        Car car = carDao.findCarById(carId);
+        if (car == null) {
+            throw new NotFoundResponse(
+                    "Car not found with ID: " + carId
+            );
+        }
+
+        if (!isAdmin){
+            Car ownedCar = service.findCarForUser(carId, username);
+            if (ownedCar == null) {
+                throw new ForbiddenResponse(
+                        "You do not have access to car ID: " + carId
+                );
+            }
+        }
+
+        return modificationDao.getTotalCostByCarId(carId);
+
+    }
+
     public Modification createModForUser(Integer carId, String username, boolean isAdmin, Modification modification) {
         Car car = carDao.findCarById(carId);
         if (car == null) {
-            return null;
+            throw new NotFoundResponse(
+                    "Car not found with ID: " + carId
+            );
         }
 
         if (!isAdmin) {

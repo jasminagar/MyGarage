@@ -28,6 +28,23 @@ public class ModificationDao {
         }
     }
 
+    public Double getTotalCostByCarId(Integer carId) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            return em.createQuery(
+                            "SELECT COALESCE(SUM(m.cost), 0) " +
+                                    "FROM Modification m " +
+                                    "WHERE m.car.id = :carId",
+                            Double.class
+                    )
+                    .setParameter("carId", carId)
+                    .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
     public Modification createModification(Integer carId, Modification modification) {
         EntityManager em = emf.createEntityManager();
 
