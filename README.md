@@ -1,7 +1,9 @@
 # MyGarage — Digital Vehicle Service Book
 
-MyGarage is a Java REST API that allows users to import vehicle information using the vehicle's registration number. By integrating with MotorAPI, the system retrieves vehicle details and inspection report information, so users do not have to enter the information manually. This helps ensure that vehicle records are accurate and based on existing data.
-Users can manage their vehicles and keep track of service records, expenses and modifications in one place. The project focuses on simplifying maintaining reliable vehicle information and providing secure access through JWT authentication and role-based authorization.
+MyGarage is a Java REST API for managing vehicle information and maintenance history. Users can import vehicle data by registration number through an integration with MotorAPI. Depending on the information available from the external service, the import can populate vehicle details and inspection information without requiring users to enter every field manually.
+
+Users can manage their vehicles and keep track of service records, expenses and modifications in one place. The backend uses JWT authentication, role-based authorization and resource-ownership checks to protect user data.
+
 ## Project Links
 
 - **Source code:** [GitHub Repository](https://github.com/jasminagar/MyGarage)
@@ -10,14 +12,16 @@ Users can manage their vehicles and keep track of service records, expenses and 
 
 ## Features
 
-- **Vehicle management:** Create, retrieve, update and delete records related to a vehicle..
-- **External API integration:** Integrate with MotorAPI to retrieve vehicle data and convert API responses into application data models.
-- **Database persistence:** Use Hibernate and JPA to map Java entities to a PostgreSQL database.
-- **JWT authentication:** Authenticate users through JSON Web Tokens.
-- **Authorization:** Apply role-based access control and ownership checks to protect endpoints and vehicle resources.
-- **Partial updates:** Support updating selected fields without requiring a complete replacement of an existing resource.
-- **Vehicle import:** Handle imported vehicle data through JSON, DTOs and entity conversion.
-- **API testing:** Test endpoint behaviour, security rules and vehicle import functionality.
+- **Vehicle management:** Create, retrieve, update and delete vehicle records.
+- **Vehicle import:** Import available vehicle and inspection information from MotorAPI using a registration number.
+- **Service history:** Store and manage service records associated with a vehicle.
+- **Expense tracking:** Record and manage vehicle-related expenses.
+- **Modification tracking:** Keep a record of vehicle modifications.
+- **Database persistence:** Persist application data in PostgreSQL using Hibernate and JPA.
+- **Authentication:** Authenticate users with JSON Web Tokens (JWT).
+- **Authorization:** Apply role-based access control and resource-ownership checks.
+- **Data transfer objects:** Use DTOs to control how data enters and leaves the application.
+- **Automated testing:** Test database operations, service-layer rules and HTTP endpoint behaviour.
 
 ## Technology Stack
 
@@ -39,50 +43,54 @@ Users can manage their vehicles and keep track of service records, expenses and 
 
 ## Architecture
 
-MyGarage uses a Java backend with a REST API, persistent data storage and integrations with external services. HTTP requests are handled through Javalin, while Hibernate/JPA manages persistence to PostgreSQL.
+MyGarage separates HTTP handling, application logic, persistence and external API integration. A request enters through a Javalin route, is checked by the authentication and authorization mechanisms, and is then handled by the relevant application logic. Data access is performed through the persistence layer using Hibernate/JPA and PostgreSQL. Vehicle imports also communicate with MotorAPI.
 
 
-                     Client
-                       |
-                       v
-                  Javalin REST API
-                       |
-                       v
-              Authentication & Security
-              JWT, roles and ownership
-                       |
-                       v
-                Application Logic
-                       |
-               +-------+-------+
-               |               |
-               v               v
-         Hibernate / JPA    MotorAPI
-               |
-               v
-          PostgreSQL
+                             Client
+                           |
+                           v
+                    Javalin REST API
+                           |
+                           v
+                Authentication & Authorization
+                   JWT, roles and ownership
+                           |
+                           v
+                    Route / Controller
+                           |
+                           v
+                     Service Layer
+                    /             \
+                   v               v
+              DAO Layer         MotorAPI
+                   |
+                   v
+             Hibernate / JPA
+                   |
+                   v
+               PostgreSQL
 
 
-The diagram represents the main responsibilities of the system rather than every class or dependency in the implementation.
+The diagram shows the main responsibilities and request flow. It is a conceptual overview rather than a class-by-class representation of the codebase.
 
 
 ### Key Design Decisions
 
 **REST API with Javalin**
 
-Javalin was chosen to provide a lightweight REST API for communication between the client and the backend. A REST-based architecture separates the application's interface from its business logic and data management, allowing the backend to be developed, tested and maintained independently of the client. HTTP endpoints expose specific operations through standard methods such as GET, POST, PUT and DELETE, making the API predictable and easy to integrate with external tools. This separation also simplifies automated testing, since endpoints can be tested independently using tools such as Postman and REST Assured without requiring the client application to run.
+avalin provides a lightweight way to define HTTP routes and expose backend functionality through a REST API. Separating the API from the client allows the backend to be developed and tested independently. HTTP methods communicate the intended operation, while resource-oriented URLs provide a consistent interface for clients and tools such as Postman and REST Assured.
 
 **Persistence with JPA and Hibernate**
 
-JPA and Hibernate were selected to separate the application's domain model from the underlying database operations. JPA provides a standard way to define entities and their relationships, while Hibernate implements the object-relational mapping between Java objects and relational database tables. This reduces the need to write repetitive SQL queries and makes it easier to manage relationships between entities. PostgreSQL was chosen for persistent storage because it provides relational data integrity, structured querying and transaction support. Together, these technologies provide a maintainable persistence layer in which application data remains available across restarts, while database constraints and transactions help preserve consistency.
+JPA provides the persistence annotations and interfaces used to map Java objects to relational data. Hibernate implements this object-relational mapping, while PostgreSQL stores the application data. This approach makes entity relationships and database operations easier to manage than manually mapping every query result. PostgreSQL also provides transactions and relational constraints that help maintain data integrity.
 
 **JWT authentication and authorization**
 
-JWT-based authentication was selected to identify users across separate HTTP requests without requiring the server to maintain a traditional session for every client. After successful authentication, the client receives a token that can be included in subsequent requests. The backend validates the token before allowing access to protected endpoints. However, authentication and authorization serve different purposes: authentication establishes who the user is, while authorization determines what the user is permitted to do. The design therefore considers both user roles and resource ownership when protecting operations. Role-based checks restrict access to functionality according to a user's permissions, while ownership checks ensure that users cannot access or modify resources belonging to other users merely by changing an identifier in a request. This separation provides a clearer security model and reduces the risk of unauthorized data access.
+JWTs allow the client to authenticate subsequent requests by sending a token in the Authorization header. Authentication establishes the identity of the requester; authorization determines which actions that requester may perform. The design therefore considers both user roles and resource ownership when protecting operations. Role-based checks restrict access to functionality according to a user's permissions, while ownership checks ensure that users cannot access or modify resources belonging to other users merely by changing an identifier in a request. This separation provides a clearer security model and reduces the risk of unauthorized data access.
 
 **DTOs and external API integration**
 
-DTOs (Data Transfer Objects) were introduced to separate data exchanged through the API from the entities used internally by the application. This is particularly important when integrating with MotorAPI, because external responses may contain fields, naming conventions or data structures that do not match the application's database model. Instead of coupling persistent entities directly to the external API, the response can be mapped to dedicated DTOs and then converted into the appropriate internal representation. This creates a clear boundary between external data and the application's domain model. It also makes validation, error handling and data transformation easier to manage, while reducing the impact of changes to the external API on the persistence layer. The same principle can be applied to incoming client requests, ensuring that only intended fields can be modified through the API.
+DTOs separate data exchanged with clients or external services from the entities used for persistence. This is useful when integrating MotorAPI because its response structure does not necessarily match the application's database model. External data can be mapped into DTOs, validated and converted into application entities. This reduces coupling between the external service and the database model and gives the application control over which fields are accepted or exposed.
 
 **Partial updates**
 
@@ -94,213 +102,119 @@ Automated testing was included to verify the behaviour of the application at dif
 
 ## Data Model
 
-The database model is centred around users and their vehicles, with separate entities for service records, expenses and modifications. This structure reflects a deliberate design choice to separate different types of information into distinct entities rather than storing all vehicle-related data in a single table. Each user can own multiple cars, and each car can have multiple service records, expenses and modifications. This one-to-many relationship structure reduces data duplication and allows each type of record to be managed independently. It also makes the model easier to extend, for example, if additional types of vehicle-related records are introduced in the future.
+The database separates users, vehicles and the different types of vehicle-related records. The main entities are User, Role, Vehicle, ServiceRecord, Expense and Modification.
+- A User represents an account and is associated with the vehicles that user owns.
+- A Role represents an authorization role used when determining which operations a user may perform.
+- A Vehicle stores the core information about a vehicle and is associated with its owner.
+- A ServiceRecord stores a service or maintenance entry associated with a vehicle.
+- An Expense stores a cost associated with a vehicle.
+- A Modification stores information about a change made to a vehicle.
+A user can own multiple vehicles. A vehicle can have multiple service records, expenses and modifications. Keeping these record types separate avoids repeating the vehicle's core information in every related record. Instead, related records refer to the relevant vehicle through database relationships.
 
-The database follows a normalized structure by separating data according to its purpose and relationships. User information is stored independently of vehicle data, while service records, expenses and modifications are associated with the relevant vehicle through foreign keys. This reduces the risk of update, insertion and deletion anomalies, where the same information would otherwise need to be maintained in multiple places. It also improves data consistency by ensuring that each entity has a clearly defined responsibility and that relationships between records are explicitly represented.
+This structure supports a normalized relational model: each entity has a defined responsibility, and vehicle information is maintained in one place rather than copied into every service, expense or modification record. Primary keys identify records, while foreign keys maintain relationships between them. Database constraints help prevent records from referring to parent records that do not exist.
 
-Security is addressed through a role-based authorization structure, where users can be assigned roles that determine which protected functionality they are permitted to access. Separating roles from user and vehicle data makes authorization rules easier to manage and extend. However, role-based authorization alone is not sufficient for protecting user-owned resources. Access control must also consider resource ownership, ensuring that authenticated users can only access or modify vehicles and related records they are authorized to manage. These checks should be enforced by the backend rather than relying on restrictions implemented in the client.
-
-PostgreSQL is used to enforce referential integrity through primary keys, foreign keys and appropriate constraints. These mechanisms prevent invalid relationships, such as records referencing vehicles that do not exist, and help maintain consistency when related data is changed or deleted. Combined with application-level authorization and validation, the database constraints provide an additional layer of protection against inconsistent or invalid data.
+Authorization is related to, but separate from, the database relationships. A valid relationship between a user and a vehicle does not by itself authorize every request. The backend must check the requesting user's permissions and, where applicable, verify that the user owns the vehicle associated with the requested record.
 
 The complete database structure and entity relationships are illustrated in the [ER diagram](diagrams/ER-diagram.png).
 
 **Important entities**
 
-### User
+### User and Role
+The User entity represents a registered account. It stores the information needed to identify and authenticate a user, including a username and a password hash. Passwords should not be stored in plain text; jBCrypt is used to hash passwords for secure storage and verification.
 
-The User entity represents a registered user who can authenticate with the API and manage their own vehicles. It is a fundamental part of the system because it establishes ownership of data and provides the basis for access control. Each user has a unique username and a securely stored password hash, ensuring that credentials can be verified without storing passwords in plain text.
-
-Users can be assigned roles that determine which operations they are permitted to perform. This separates authentication, which establishes the user's identity, from authorization, which determines their permissions. By connecting users to their vehicles, the system can enforce resource ownership and prevent users from accessing or modifying vehicles belonging to other users. This relationship is important not only for security but also for maintaining a clear separation between users' data.
-
-The User entity therefore acts as the starting point for the ownership structure of the database. It allows the application to associate each vehicle with a specific owner and provides a foundation for enforcing access restrictions consistently across vehicle-related operations.
+The Role entity represents a user's authorization level. Roles support role-based access control, but they do not replace ownership validation. For example, a user may have permission to use an expense endpoint while still being restricted to expenses belonging to their own vehicles.
 
 ### Vehicle
+The Vehicle entity is the central entity for vehicle-related information. It stores details such as make, model, year, mileage, registration number and technical specifications. Each vehicle is associated with its owner.
 
-The Vehicle entity represents a vehicle registered in MyGarage and serves as the central entity for the application's vehicle-related data. Each vehicle is associated with a specific user, establishing an explicit ownership relationship that allows the backend to determine which user is permitted to manage it.
+A vehicle can have multiple inspection records, expenses and modifications. These are stored as separate records linked to the vehicle, so the same vehicle details do not need to be repeated in each entry. This makes it possible to retrieve a vehicle together with its maintenance, financial and modification history.
 
-A vehicle stores information such as its make, model, year, mileage, registration number and technical specifications. Keeping these attributes together in a dedicated entity provides a single, consistent representation of the vehicle that can be referenced by other parts of the application. This avoids duplicating core vehicle information across service records, expenses and modifications, making the data easier to maintain and reducing the risk of inconsistencies.
+Vehicle information can be entered through the application or populated through the MotorAPI import flow. Imported values should still be mapped and validated before being persisted; external data availability does not guarantee that every field is present or current.
+InspectionRecord, Expense and Modification
+InspectionRecord, Expense and Modification represent different kinds of information associated with a vehicle. Separating them allows each type of record to have its own fields and operations.
 
-The vehicle also acts as the parent entity for related records, including service history, expenses and modifications. This relationship allows the application to maintain a complete history of each vehicle while keeping each type of information separate. For example, multiple service records can be associated with the same vehicle without repeatedly storing its make, model or registration number. This supports a normalized database structure and makes it possible to retrieve both individual records and a vehicle's overall history.
-
-Users can create, retrieve, update and delete vehicle information, as well as import vehicle data from MotorAPI. The import functionality reduces the need to enter technical information manually and can improve data consistency when external data is mapped and validated before being stored. Regardless of how a vehicle is created, the backend must verify the user's authorization before allowing access or modifications. This ensures that external data integration and ordinary CRUD operations follow the same ownership and security rules.
-
-Together, the User and Vehicle entities establish the core structure of MyGarage: users own vehicles, and vehicles provide the foundation for organizing all associated maintenance, financial and modification data. This relationship connects the application's main functionality with its data integrity and security requirements.
+Inspection records support the vehicle's maintenance history. Expenses make it possible to track costs, while modifications document changes made to the vehicle. Since each record is linked to a vehicle, the application can retrieve the relevant history without duplicating the vehicle's core attributes.
 
 ## Security and Input Validation
 
-Security is integrated into the backend layers to protect user accounts, resources, and data. The API layer uses JWT authentication to verify the identity of users making requests. The service layer enforces authorization by checking user roles and resource ownership before allowing operations. The DAO layer handles database access, while entity relationships associate resources with their owners.
+Security is enforced by the backend rather than relying on client-side restrictions.
 
-Input validation complements these security measures by ensuring that incoming data meets the application's requirements before it is processed or stored. This includes checking data types, required fields, and values to reduce invalid input, prevent data corruption, and minimize security risks. Request data is converted into DTOs and application models, allowing the backend to process it in a controlled manner.
+- **Authentication:** Protected requests must include a valid JWT in the Authorization header.
+- **Role-based authorization:** The backend checks whether the authenticated user has a role permitted to perform the requested operation.
+- **Ownership validation:** For user-owned resources, the service layer checks that the requested vehicle or related record belongs to the requesting user.
+- **Password handling:** Passwords are hashed using jBCrypt rather than stored as plain text.
+- **Input validation:** Request data is checked before it is processed or persisted. DTOs help control which fields clients can submit.
 
-Together, authentication, authorization, ownership checks, and input validation help prevent unauthorized access and ensure that data is handled safely. A valid JWT alone does not guarantee access to a resource; the backend must also verify that the user has permission to perform the requested operation.
+A valid JWT only establishes the identity of the requester. It does not automatically grant access to every resource. The backend must also enforce the relevant role and ownership rules.
 
 # API Documentation
 
-## CRUD Endpoint Overview
+The API exposes endpoints for authentication, vehicle import and CRUD operations on vehicles and their related records. The examples below document selected endpoints; they are not an exhaustive list of every route in the application. Most resource endpoints follow a conventional CRUD structure, but their exact paths, permissions and request bodies depend on the resource.
+CRUD Operations
+Operation	HTTP method	Purpose
+Create	POST	Creates a resource.
+Read	GET	Retrieves a resource or collection.
+Update	PUT	Updates a resource according to the endpoint's implementation.
+Delete	DELETE	Deletes a resource.
 
-Besides authentication and vehicle import, the MyGarage API provides endpoints for managing vehicles and their associated service records, expenses and modifications. Most of these endpoints follow the standard CRUD pattern (Create, Read, Update and Delete). The table below summarizes the typical operations and their HTTP methods.
+Main Endpoints
+Method	Endpoint	Purpose	Authentication
+POST	/api/v1/auth/register	Registers a user account.	Not required
+POST	/api/v1/auth/login	Authenticates a user and returns a JWT.	Not required
+POST	/api/v1/service-records/import/{registrationNumber}	Imports vehicle information using a registration number.	Required (USER or ADMIN)
 
-| Operation | HTTP method | Purpose |
-|---|---|---|
-| Create | `POST` | Creates a new resource, such as a vehicle, expense or service record. |
-| Read | `GET` | Retrieves a resource or a collection of resources. |
-| Partial update | `PUT` | Updates selected fields of an existing resource, where supported. |
-| Delete | `DELETE` | Removes an existing resource. |
 
-These operations are implemented across the relevant resource endpoints. The exact URL structure depends on the resource and its relationships. For example, an expense endpoint can include the vehicle ID to identify the car associated with the expense, as well as the expense ID to identify the specific record.
-
-Most CRUD endpoints require authentication and apply role-based authorization. Resource ownership must also be checked where relevant to ensure that users can only manage data they are authorized to access. This approach provides a consistent structure across the API while allowing each resource to enforce its own validation and business rules.
-
-The following example demonstrates how an existing expense is updated.
-
-## Example: Updating an Expense
-
-The expense endpoints illustrate the general CRUD structure used throughout MyGarage. In this example, an existing expense associated with a specific vehicle is updated using an HTTP `PUT` request.
-
-**Request**
-
-```http
-PUT http://localhost:7070/api/v1/expenses/car/60/update/10
-Authorization: Bearer {{token}}
-Content-Type: application/json
-```
-
-**Request body**
-
-```json
-{
-  "date": "2026-10-07",
-  "category": "TEST",
-  "amount": 600,
-  "description": "TEST"
-}
-```
-
-The URL contains two identifiers: `60` represents the vehicle ID, while `10` represents the expense ID. Together, they identify the expense that should be updated in the context of its associated vehicle.
-
-The request body contains the values submitted for the expense, including its date, category, amount and description. Since the endpoint uses `PUT`, the client should provide all fields required by the update operation rather than assuming that omitted fields will remain unchanged. The precise handling of omitted fields depends on the implementation.
-
-The endpoint requires a valid JWT and is accessible to users with the `USER` or `ADMIN` role. The backend must also verify that the requesting user is authorized to modify the specified expense. Checking only the role is insufficient if users are restricted to managing their own vehicles and related records.
-
-After processing the request, the API returns an appropriate HTTP status code indicating whether the update succeeded or failed. The exact response body and status code depend on the endpoint implementation.
-
-This example demonstrates the general principles applied to CRUD operations throughout MyGarage: HTTP methods communicate the intended operation, URL parameters identify the target resource, JSON bodies carry the relevant data, and authentication and authorization protect access to application resources.
-
-## Endpoints Overview
-
-The following table describes the main endpoints, their HTTP methods and their purposes.
-
-| Method | Endpoint | Purpose | Authentication |
-|---|---|---|---|
-| `POST` | `/api/v1/auth/register` | Registers a new user account. | Not required |
-| `POST` | `/api/v1/auth/login` | Authenticates a user and returns a JWT. | Not required |
-| `POST` | `/api/v1/service-records/import/{registrationNumber}` | Imports vehicle information using its registration number. | Required (`USER` or `ADMIN`) |
-
-## Authentication and Authorization
-
-The API uses JSON Web Tokens (JWT) to authenticate requests to protected endpoints. After a successful login, the client receives a token that must be included in the `Authorization` header of subsequent requests.
-
-The header must follow this format:
-
-```http
+The table lists selected endpoints to demonstrate the API's main entry points. Other vehicle, service-record, expense and modification operations follow the resource patterns implemented in the source code.
+Authentication
+After a successful login, the client receives a JWT. Include that token in the Authorization header when calling protected endpoints:
 Authorization: Bearer <JWT_TOKEN>
-```
+Replace <JWT_TOKEN> with the token returned by the login endpoint. The backend validates the token and then applies the relevant authorization checks.
 
-Replace `<JWT_TOKEN>` with the token returned by the login endpoint. The backend validates the token and checks the user's permissions before processing the request. For protected operations, authorization may depend on both the user's role and ownership of the requested resource.
-
-When using the IntelliJ HTTP Client, the returned token can be stored in a global variable for reuse:
-
-```javascript
+When using the IntelliJ HTTP Client, the token can be stored in a global variable after the login request:
 > {% 
     client.global.set("token", response.body.token);
 %}
-```
-
-The variable can then be referenced in subsequent requests:
-
-```http
+It can then be reused in subsequent requests:
 Authorization: Bearer {{token}}
-```
+1. Register a User
+Creates a new user account. Authentication is not required.
 
-## Request and Response Bodies
-
-Endpoints that accept input data use JSON request bodies with the appropriate `Content-Type: application/json` header. For example, registration and login require a username and password. The registration endpoint creates a user account, while the login endpoint validates the credentials and returns a JWT together with the username.
-
-Successful responses use JSON to return relevant information about the operation. Registration returns the created user's username, while login returns the authentication token and username. The vehicle import endpoint returns the imported vehicle's data, including technical specifications and inspection information when available from the external service.
-
-### 1. Register a User
-
-Creates a new user account.
-
-**Request**
-
-```http
+Request
 POST /api/v1/auth/register
 Content-Type: application/json
-```
-
-```json
 {
   "username": "your_username",
   "password": "your_password"
 }
-```
-
-**Successful response — `201 Created`**
-
-```json
+Successful response — 201 Created
 {
   "username": "your_username"
 }
-```
+2. Log In
+Authenticates a user and returns a JWT for subsequent requests.
 
-Registration does not require authentication.
-
-### 2. Login
-
-Authenticates a user and returns a JWT for subsequent requests to protected endpoints.
-
-**Request**
-
-```http
+Request
 POST /api/v1/auth/login
 Content-Type: application/json
-```
-
-```json
 {
   "username": "your_username",
   "password": "your_password"
 }
-```
-
-**Successful response — `200 OK`**
-
-```json
+Successful response — 200 OK
 {
   "token": "<JWT_TOKEN>",
   "username": "your_username"
 }
-```
+Include the returned token in the Authorization header when accessing protected endpoints.
+3. Import a Vehicle
+Imports available vehicle information using its registration number. The backend retrieves data from MotorAPI and maps the response into the application's data model.
 
-The returned token must be included in the `Authorization` header when calling protected endpoints.
-
-### 3. Import a Vehicle
-
-Imports vehicle information using its registration number. The backend retrieves the available information from MotorAPI and processes it for use within MyGarage. Depending on the data returned by the external service, the imported information may include technical specifications, mileage-related information and inspection details.
-
-**Request**
-
-```http
+Request
 POST /api/v1/service-records/import/CR48908
 Authorization: Bearer <JWT_TOKEN>
-```
+Replace CR48908 with the vehicle's registration number and <JWT_TOKEN> with a valid token.
 
-Replace `CR48908` with the vehicle's registration number and `<JWT_TOKEN>` with a valid token.
-
-**Successful response — `201 Created`**
-
-```json
+Successful response — 201 Created
 {
   "id": 1,
   "make": "Example Make",
@@ -328,25 +242,38 @@ Replace `CR48908` with the vehicle's registration number and `<JWT_TOKEN>` with 
     28
   ]
 }
-```
+The response values are illustrative and are not verified data returned by MotorAPI. The date arrays show the date structure used in the example: [year, month, day]. Actual fields and values depend on the data returned by the external service and the application's mapping.
 
-The response values are illustrative examples and do not represent verified data returned by MotorAPI. The inspection dates use the date structure returned by the application, represented as `[year, month, day]`.
+The endpoint requires authentication and is available to users with the USER or ADMIN role. The backend must also apply the relevant authorization and ownership rules when associating imported data with a user.
+Example: Updating an Expense
+The following example shows an expense update request. The URL contains two identifiers: 60 is the vehicle ID and 10 is the expense ID.
 
-The endpoint requires authentication and is available to users with the `USER` or `ADMIN` role. The backend must also enforce the relevant ownership and authorization rules when creating or associating vehicle data.
+Request
+PUT http://localhost:7070/api/v1/expenses/car/60/update/10
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+Request body
+{
+  "date": "2026-10-07",
+  "category": "TEST",
+  "amount": 600,
+  "description": "TEST"
+}
+The request body contains the expense date, category, amount and description. The example sends all four fields; clients should not assume that omitted fields remain unchanged unless that behaviour is explicitly implemented by the endpoint.
 
-## HTTP Status Codes
+The endpoint requires a valid JWT and is available to users with the USER or ADMIN role. The backend must also verify that the requester is permitted to modify the expense, including checking ownership of the associated vehicle where required.
+HTTP Status Codes
+The API uses HTTP status codes to communicate the outcome of a request. The following table describes common statuses relevant to the documented operations.
+Status code	Meaning
+200 OK	The request completed successfully.
+201 Created	A resource was created successfully.
+400 Bad Request	The request contains invalid data or fails validation.
+401 Unauthorized	Authentication is missing, invalid or unsuccessful.
+403 Forbidden	The user is authenticated but lacks the required permission.
+404 Not Found	The requested resource could not be found.
 
-The API uses standard HTTP status codes to communicate the outcome of a request.
 
-| Status code | Meaning |
-|---|---|
-| `200 OK` | The request completed successfully. |
-| `201 Created` | A resource was created successfully, such as a user or imported vehicle. |
-| `400 Bad Request` | The request contains invalid data or does not satisfy validation requirements. |
-| `401 Unauthorized` | Authentication is missing, invalid or unsuccessful. |
-| `403 Forbidden` | The user is authenticated but lacks the required role or permission. |
-
-These status codes help clients distinguish successful operations from validation errors and security-related failures, allowing them to handle API responses appropriately.
+The exact status code and response body for an error depend on the endpoint and the application's exception handling.
 
 ## Testing
 
@@ -448,10 +375,17 @@ Ensure that the database and any required application configuration are availabl
 
 # Development Notes
 
-## Hibernate Lazy Loading
-One challenge during development was handling Hibernate's lazy loading of user roles. The EntityManager was closed before the roles were fetched, causing a LazyInitializationException when the application attempted to access them during authentication and authorization.
-I addressed this by ensuring that the roles were loaded while the persistence context was still open. This helped me understand the relationship between Hibernate's persistence context, lazy loading and role-based access control.
-## Security and Authorization
-Another challenge was ensuring that users could only manage their own vehicles. JWT authentication identified the logged-in user, while role-based authorization controlled access to endpoints for different roles. However, roles alone were not enough, since a user with access to an endpoint should not automatically be able to modify another user's vehicle. I therefore added ownership checks in the service layer to verify that the vehicle belonged to the requesting user before allowing operations on it. This required security to be considered both at the endpoint level, through role checks, and at the service level, through ownership validation.
-## Error Handling
-Error handling turned out to be more complex than I initially expected. I had to consider different types of errors, including invalid requests, authentication failures and problems occurring during API operations. This taught me the importance of handling errors consistently and returning appropriate HTTP status codes and responses, making the API easier to understand and use.
+### Hibernate Lazy Loading
+One development challenge involved Hibernate's lazy loading of user roles. The EntityManager was closed before the roles were accessed, which caused a LazyInitializationException during authentication and authorization.
+
+I addressed this by ensuring that the roles were loaded while the persistence context was still open. This clarified the relationship between an entity's persistence context and lazy-loaded associations. It also highlighted that data needed later in the request lifecycle must be fetched or mapped before the persistence context is closed.
+
+### Security and Ownership Checks
+Another challenge was ensuring that users could only manage their own vehicles and related records. JWT authentication identified the logged-in user, and role-based authorization determined which operations were available to that role. However, a role check alone did not establish ownership of a particular vehicle.
+
+I added ownership checks in the service layer so that the application verifies the relationship between the requesting user and the requested resource before performing an operation. This reinforced the distinction between endpoint-level permissions and resource-level authorization. It also protects against insecure direct object references, where a user attempts to access another user's data by changing an identifier in a request.
+
+### Error Handling
+Error handling required considering different failure points, including invalid input, authentication failures, missing resources and problems during API operations. Consistent exception handling and appropriate HTTP status codes make it easier for clients to understand whether a request failed because of invalid data, missing authentication or insufficient permission.
+
+This work highlighted the importance of treating error handling as part of the API design rather than as an afterthought. A useful next step is to ensure that external-service failures, such as MotorAPI being unavailable or returning unexpected data, are also translated into predictable API responses.
