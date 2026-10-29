@@ -1,6 +1,6 @@
-baseURL: "http://localhost:1313/"
-locale: "en-us"
-title: "My New Hugo Project"
+baseURL: "https://jasminagar.github.io/MyGarage/"
+languageCode: "en-us"
+title: "MyGarage"
 theme: "PaperMod"
 
 params:
