@@ -4,8 +4,10 @@ title: 'Implementing CRUD with JPA and Testing with Postman'
 draft: false
 description: MyGarage - week one
 summary: Digital servicebook
-categories: {Project Log}
-series: MyGarage
+layout: portfolio
+categories:
+  "Project Log"
+series: ["MyGarage"]
 series_order: 4
 ---
 

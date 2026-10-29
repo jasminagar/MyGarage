@@ -4,8 +4,10 @@ date: '2026-10-23T15:30:00+02:00'
 draft: false
 description: MyGarage - Resource-level authorization, JWT app.security, and REST API testing
 summary: Strengthening endpoint app.security with ownership checks, role-based access control, partial updates, and API testing.
-categories: {Project Log}
-series: MyGarage
+layout: portfolio
+categories:
+  "Project Log"
+series: ["MyGarage"]
 series_order: 9
 ---
 

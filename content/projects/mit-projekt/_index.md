@@ -1,11 +1,12 @@
 ---
-title: "Mit projekt"
-description: "Dokumentation og udvikling af mit projekt."
+title: "BackendPortifolio"
+description: "My development portfolio and project posts"
+layout: "portfolio"
 ---
 
-Velkommen til projektet.
 
-Her finder du mine posts og dokumentation.
+Welcome to my backend portfolio. Here you can explore my projects,
+the technologies I have worked with, and the challenges I have solved.
 
 ## Posts
 

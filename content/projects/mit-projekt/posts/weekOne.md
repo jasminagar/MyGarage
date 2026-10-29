@@ -4,10 +4,11 @@ title: 'From the real world to userstories'
 draft: false
 description: MyGarage - week one
 summary: Digital servicebook
-categories: {Project Log}
-series: MyGarage
+layout: portfolio
+categories:
+  "Project Log"
+series: ["MyGarage"]
 series_order: 2
-hiddenInHomeList: true
 ---
 When working on a car, there are several things that you need to remember:
 

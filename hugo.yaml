@@ -1,8 +1,10 @@
+
 baseURL: "https://jasminagar.github.io/MyGarage/"
-languageCode: "en-us"
+locale: "en-us"
 title: "MyGarage"
 theme: "PaperMod"
 
 params:
   mainSections:
-    - projects
+    - blog
+

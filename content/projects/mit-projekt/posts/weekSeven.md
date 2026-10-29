@@ -4,9 +4,11 @@ date: '2026-10-16T17:42:00+02:00'
 draft: false
 description: MyGarage - JWT authentication, authorization, and API testing
 summary: Implementing JWT app.security, organizing the Javalin configuration, and testing vehicle import functionality.
-categories: {Project Log}
-series: MyGarage
-series_order: 8
+layout: portfolio
+categories:
+  "Project Log"
+series: ["MyGarage"]
+series_order: 9
 ---
 
 # Security and API Testing

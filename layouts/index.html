@@ -1,0 +1,22 @@
+{{ define "main" }}
+<main class="main">
+    <header class="page-header">
+        <h1>Welcome to My Portfolio</h1>
+        <div class="post-content">
+            <p>Welcome to my development portfolio. Here you can explore my projects and learn about my approach to software development.</p>
+            <p>My projects focus on Java, backend development, REST APIs, databases, and integrations with external services.</p>
+        </div>
+    </header>
+
+    <h2>My Projects</h2>
+    <article class="post-entry">
+        <header class="entry-header">
+            <h2>BackendPortifolio</h2>
+        </header>
+        <div class="entry-content">
+            <p>Explore my portfolio, projects and development posts.</p>
+        </div>
+        <a class="entry-link" href="{{ "projects/mit-projekt/" | relURL }}"></a>
+    </article>
+</main>
+{{ end }}

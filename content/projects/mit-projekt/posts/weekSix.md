@@ -4,8 +4,10 @@ date: '2026-09-29T17:42:00+02:00'
 draft: false
 description: MyGarage - API integration and vehicle data processing
 summary: Adding app.security layer and testing endpoints.
-categories: {Project Log}
-series: MyGarage
+layout: portfolio
+categories:
+  "Project Log"
+series: ["MyGarage"]
 series_order: 7
 ---------------
 
