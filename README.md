@@ -145,7 +145,7 @@ Besides authentication and vehicle import, the MyGarage API provides endpoints f
 | Create | `POST` | Creates a new resource, such as a vehicle, expense or service record. |
 | Read | `GET` | Retrieves a resource or a collection of resources. |
 | Update | `PUT` | Updates an existing resource with the supplied data. |
-| Partial update | `PATCH` | Updates selected fields of an existing resource, where supported. |
+| Partial update | `PUT` | Updates selected fields of an existing resource, where supported. |
 | Delete | `DELETE` | Removes an existing resource. |
 
 These operations are implemented across the relevant resource endpoints. The exact URL structure depends on the resource and its relationships. For example, an expense endpoint can include the vehicle ID to identify the car associated with the expense, as well as the expense ID to identify the specific record.
