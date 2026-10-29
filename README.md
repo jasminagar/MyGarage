@@ -135,51 +135,173 @@ Input validation complements these security measures by ensuring that incoming d
 Together, authentication, authorization, ownership checks, and input validation help prevent unauthorized access and ensure that data is handled safely. A valid JWT alone does not guarantee access to a resource; the backend must also verify that the user has permission to perform the requested operation.
 
 # API Documentation
-The API provides multiple endpoints for CRUD operations and security. The most important endpoints are login, register and vehicle import.
-##Authentication
-Endpoints that require authentication must be called with a valid JWT token in the Authorization header:
+
+## CRUD Endpoint Overview
+
+Besides authentication and vehicle import, the MyGarage API provides endpoints for managing vehicles and their associated service records, expenses and modifications. Most of these endpoints follow the standard CRUD pattern (Create, Read, Update and Delete). The table below summarizes the typical operations and their HTTP methods.
+
+| Operation | HTTP method | Purpose |
+|---|---|---|
+| Create | `POST` | Creates a new resource, such as a vehicle, expense or service record. |
+| Read | `GET` | Retrieves a resource or a collection of resources. |
+| Update | `PUT` | Updates an existing resource with the supplied data. |
+| Partial update | `PATCH` | Updates selected fields of an existing resource, where supported. |
+| Delete | `DELETE` | Removes an existing resource. |
+
+These operations are implemented across the relevant resource endpoints. The exact URL structure depends on the resource and its relationships. For example, an expense endpoint can include the vehicle ID to identify the car associated with the expense, as well as the expense ID to identify the specific record.
+
+Most CRUD endpoints require authentication and apply role-based authorization. Resource ownership must also be checked where relevant to ensure that users can only manage data they are authorized to access. This approach provides a consistent structure across the API while allowing each resource to enforce its own validation and business rules.
+
+The following example demonstrates how an existing expense is updated.
+
+## Example: Updating an Expense
+
+The expense endpoints illustrate the general CRUD structure used throughout MyGarage. In this example, an existing expense associated with a specific vehicle is updated using an HTTP `PUT` request.
+
+**Request**
+
+```http
+PUT http://localhost:7070/api/v1/expenses/car/60/update/10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+```
+
+**Request body**
+
+```json
+{
+  "date": "2026-10-07",
+  "category": "TEST",
+  "amount": 600,
+  "description": "TEST"
+}
+```
+
+The URL contains two identifiers: `60` represents the vehicle ID, while `10` represents the expense ID. Together, they identify the expense that should be updated in the context of its associated vehicle.
+
+The request body contains the values submitted for the expense, including its date, category, amount and description. Since the endpoint uses `PUT`, the client should provide all fields required by the update operation rather than assuming that omitted fields will remain unchanged. The precise handling of omitted fields depends on the implementation.
+
+The endpoint requires a valid JWT and is accessible to users with the `USER` or `ADMIN` role. The backend must also verify that the requesting user is authorized to modify the specified expense. Checking only the role is insufficient if users are restricted to managing their own vehicles and related records.
+
+After processing the request, the API returns an appropriate HTTP status code indicating whether the update succeeded or failed. The exact response body and status code depend on the endpoint implementation.
+
+This example demonstrates the general principles applied to CRUD operations throughout MyGarage: HTTP methods communicate the intended operation, URL parameters identify the target resource, JSON bodies carry the relevant data, and authentication and authorization protect access to application resources.
+
+## Endpoints Overview
+
+The following table describes the main endpoints, their HTTP methods and their purposes.
+
+| Method | Endpoint | Purpose | Authentication |
+|---|---|---|---|
+| `POST` | `/api/v1/auth/register` | Registers a new user account. | Not required |
+| `POST` | `/api/v1/auth/login` | Authenticates a user and returns a JWT. | Not required |
+| `POST` | `/api/v1/service-records/import/{registrationNumber}` | Imports vehicle information using its registration number. | Required (`USER` or `ADMIN`) |
+
+## Authentication and Authorization
+
+The API uses JSON Web Tokens (JWT) to authenticate requests to protected endpoints. After a successful login, the client receives a token that must be included in the `Authorization` header of subsequent requests.
+
+The header must follow this format:
+
+```http
 Authorization: Bearer <JWT_TOKEN>
-How the returned token is saved:
-> {%
-client.global.set(“token”, responsebody.token);
+```
+
+Replace `<JWT_TOKEN>` with the token returned by the login endpoint. The backend validates the token and checks the user's permissions before processing the request. For protected operations, authorization may depend on both the user's role and ownership of the requested resource.
+
+When using the IntelliJ HTTP Client, the returned token can be stored in a global variable for reuse:
+
+```javascript
+> {% 
+    client.global.set("token", response.body.token);
 %}
-The API uses role-based authorization to control access to protected endpoints.
-1. Register a User
+```
+
+The variable can then be referenced in subsequent requests:
+
+```http
+Authorization: Bearer {{token}}
+```
+
+## Request and Response Bodies
+
+Endpoints that accept input data use JSON request bodies with the appropriate `Content-Type: application/json` header. For example, registration and login require a username and password. The registration endpoint creates a user account, while the login endpoint validates the credentials and returns a JWT together with the username.
+
+Successful responses use JSON to return relevant information about the operation. Registration returns the created user's username, while login returns the authentication token and username. The vehicle import endpoint returns the imported vehicle's data, including technical specifications and inspection information when available from the external service.
+
+### 1. Register a User
+
 Creates a new user account.
-Request
+
+**Request**
+
+```http
 POST /api/v1/auth/register
 Content-Type: application/json
+```
+
+```json
 {
   "username": "your_username",
   "password": "your_password"
 }
-Successful Response — 201 Created
+```
+
+**Successful response — `201 Created`**
+
+```json
 {
   "username": "your_username"
 }
+```
+
 Registration does not require authentication.
-2. Login
-Authenticates a user and returns a JWT token for accessing protected endpoints.
-Request
+
+### 2. Login
+
+Authenticates a user and returns a JWT for subsequent requests to protected endpoints.
+
+**Request**
+
+```http
 POST /api/v1/auth/login
 Content-Type: application/json
+```
+
+```json
 {
   "username": "your_username",
   "password": "your_password"
 }
-Successful Response — 200 OK
+```
+
+**Successful response — `200 OK`**
+
+```json
 {
   "token": "<JWT_TOKEN>",
   "username": "your_username"
 }
-Save the returned token and include it in the Authorization header when calling protected endpoints.
-3. Import a Vehicle
-Imports vehicle information using the vehicle's registration number, as a pathParameter. The imported information can include technical specifications and inspection report details, such as the last and next inspection dates.
-Request
+```
+
+The returned token must be included in the `Authorization` header when calling protected endpoints.
+
+### 3. Import a Vehicle
+
+Imports vehicle information using its registration number. The backend retrieves the available information from MotorAPI and processes it for use within MyGarage. Depending on the data returned by the external service, the imported information may include technical specifications, mileage-related information and inspection details.
+
+**Request**
+
+```http
 POST /api/v1/service-records/import/CR48908
 Authorization: Bearer <JWT_TOKEN>
-Replace CR48908 with the vehicle's registration number and <JWT_TOKEN> with a valid token.
-Successful Response — 201 Created
+```
+
+Replace `CR48908` with the vehicle's registration number and `<JWT_TOKEN>` with a valid token.
+
+**Successful response — `201 Created`**
+
+```json
 {
   "id": 1,
   "make": "Example Make",
@@ -207,22 +329,25 @@ Successful Response — 201 Created
     28
   ]
 }
-Note: The vehicle values above are illustrative examples, not verified data returned by MotorAPI. The date format follows the response structure used by the application.
-The endpoint requires authentication and is accessible to users with the USER or ADMIN role.
-HTTP Status Codes
-The table below outlines the HTTP status codes used to describe successful requests and common errors when interacting with the API. 
-Status Code
-Meaning
-200 OK
-The request completed successfully.
-201 Created
-A user or vehicle resource was created.
-400 Bad Request
-The request contains invalid data.
-401 Unauthorized
-Authentication is missing or invalid.
-403 Forbidden
-The user does not have the required role or permission.
+```
+
+The response values are illustrative examples and do not represent verified data returned by MotorAPI. The inspection dates use the date structure returned by the application, represented as `[year, month, day]`.
+
+The endpoint requires authentication and is available to users with the `USER` or `ADMIN` role. The backend must also enforce the relevant ownership and authorization rules when creating or associating vehicle data.
+
+## HTTP Status Codes
+
+The API uses standard HTTP status codes to communicate the outcome of a request.
+
+| Status code | Meaning |
+|---|---|
+| `200 OK` | The request completed successfully. |
+| `201 Created` | A resource was created successfully, such as a user or imported vehicle. |
+| `400 Bad Request` | The request contains invalid data or does not satisfy validation requirements. |
+| `401 Unauthorized` | Authentication is missing, invalid or unsuccessful. |
+| `403 Forbidden` | The user is authenticated but lacks the required role or permission. |
+
+These status codes help clients distinguish successful operations from validation errors and security-related failures, allowing them to handle API responses appropriately.
 
 ## Testing
 
