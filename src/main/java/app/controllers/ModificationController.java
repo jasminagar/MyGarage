@@ -60,8 +60,8 @@ public class ModificationController {
             throw new UnauthorizedResponse("User is not authenticated");
         }
 
-
-        boolean isAdmin = tokenUser.getRoles().equals(EnumRoles.ADMIN);
+        boolean isAdmin = tokenUser.getRoles().stream()
+                .anyMatch(enumRoles -> enumRoles == EnumRoles.ADMIN);
 
         Double totalCost = securityService.getTotalModificationCost(carId,tokenUser.getUsername(), isAdmin);
 
