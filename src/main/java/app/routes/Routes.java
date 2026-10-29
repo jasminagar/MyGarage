@@ -1,6 +1,7 @@
 package app.routes;
 
 import app.controllers.*;
+import io.javalin.apibuilder.ApiBuilder;
 import io.javalin.apibuilder.EndpointGroup;
 
 import static java.nio.file.Paths.get;
@@ -27,6 +28,7 @@ public class Routes {
 
     public EndpointGroup getRoutes() {
         return () -> {
+            ApiBuilder.get("/", ctx -> {ctx.status(200);ctx.contentType("text/plain");ctx.result("Welcome to MyGarage API!");});
             securityRoutes.getSecurityRoutes().addEndpoints();
             expenseController.getRoutes().addEndpoints();
             carController.getRoutes().addEndpoints();

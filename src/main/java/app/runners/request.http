@@ -70,3 +70,7 @@ Content-Type: application/json
 ### GET health check
 GET http://165.245.241.134:7070/api/v1/auth/healthcheck
 Content-Type: application/json
+
+### GET welcome
+GET http://localhost:7070/api/v1/
+Content-Type: application/json
