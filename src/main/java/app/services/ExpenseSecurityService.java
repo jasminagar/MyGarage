@@ -53,8 +53,6 @@ public class ExpenseSecurityService {
         return expenseDao.createExpense(carId, expense);
     }
 
-
-
     public Expense updateExpense(
             ExpenseUpdateDTO updateDTO,
             Integer carId,
@@ -66,8 +64,7 @@ public class ExpenseSecurityService {
 
         if (expense == null) {
             throw new NotFoundResponse(
-                    "Expense not found with ID: " + expenseId
-            );
+                    "Expense not found with ID: " + expenseId);
         }
 
         User user = userDao.findUserByUsername(userName);

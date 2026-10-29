@@ -107,6 +107,9 @@ public class UserDao {
     }
 
     public User findUserByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
 
         EntityManager em = emf.createEntityManager();
 
@@ -119,7 +122,11 @@ public class UserDao {
 
         } catch (NoResultException e) {
             return null;
-
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "Failed to find user by username: " + e.getMessage()
+            );
+            throw e;
         } finally {
             em.close();
         }

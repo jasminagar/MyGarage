@@ -6,7 +6,10 @@ import app.dto.VehicleDTO;
 import app.entities.Car;
 import app.entities.ServiceRecord;
 import app.entities.User;
+import io.javalin.http.BadGatewayResponse;
 import io.javalin.http.BadRequestResponse;
+import io.javalin.http.InternalServerErrorResponse;
+import io.javalin.http.UnauthorizedResponse;
 
 public class VehicleService {
 
@@ -28,12 +31,38 @@ public class VehicleService {
             throw new BadRequestResponse("Invalid registration number format");
         }
 
+        if (user == null) {
+            throw new UnauthorizedResponse(
+                    "User not found or not authenticated"
+            );
+        }
+
         String json = apiReader.getVehicle(registrationNumber);
+        if (json == null || json.isBlank()) {
+            throw new BadGatewayResponse(
+                    "Vehicle API returned an empty response"
+            );
+        }
         VehicleDTO vehicleDTO = apiReader.convertFromJson(json);
+        if (vehicleDTO == null) {
+            throw new BadGatewayResponse(
+                    "Unable to parse vehicle API response"
+            );
+        }
 
         Car car = converter.convertToCarEntity(vehicleDTO);
+        if (car == null) {
+            throw new InternalServerErrorResponse(
+                    "Failed to convert vehicle data"
+            );
+        }
         car.setUser(user);
         Car savedCar = carDao.createCar(car);
+        if (savedCar == null) {
+            throw new InternalServerErrorResponse(
+                    "Failed to save imported car"
+            );
+        }
 
         ServiceRecord serviceRecord = converter.convertToServiceRecord(vehicleDTO, savedCar);
 

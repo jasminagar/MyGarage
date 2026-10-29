@@ -3,6 +3,7 @@ package app.dao;
 import app.config.HibernateConfig;
 import app.entities.Car;
 import app.entities.Expense;
+import io.javalin.http.NotFoundResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -18,24 +19,30 @@ public class ExpenseDao {
         try {
             em.getTransaction().begin();
 
-            Car car  = em.find(Car.class, carId);
+            Car car = em.find(Car.class, carId);
 
-            if (car == null){
-                em.getTransaction().rollback();
-                return null;
+            if (car == null) {
+                throw new io.javalin.http.NotFoundResponse(
+                        "Car not found with ID: " + carId
+                );
             }
 
             expense.setCar(car);
-
             em.persist(expense);
-
             em.getTransaction().commit();
 
             return expense;
-        } catch (Exception e) {
+
+        } catch (RuntimeException e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
+
+            System.err.println(
+                    "Failed to create expense for car ID " + carId
+                            + ": " + e.getMessage()
+            );
+
             throw e;
         } finally {
             em.close();
@@ -57,9 +64,12 @@ public class ExpenseDao {
 
         try {
             return em.createQuery(
-                    "SELECT e FROM Expense e",
+                    "select e from Expense e",
                     Expense.class
             ).getResultList();
+        } catch (RuntimeException e) {
+            System.err.println("Failed to retrieve all expenses: " + e.getMessage());
+            throw e;
         } finally {
             em.close();
         }
@@ -75,6 +85,13 @@ public class ExpenseDao {
                     )
                     .setParameter("carId", carId)
                     .getResultList();
+
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "Failed to find expenses for car ID " + carId
+                            + ": " + e.getMessage()
+            );
+            throw e;
         } finally {
             em.close();
         }
@@ -82,8 +99,8 @@ public class ExpenseDao {
 
     public List<Expense> findExpenseByCarIdAndCategory(
             Integer carId,
-            String category
-    ) {
+            String category) {
+
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -96,6 +113,13 @@ public class ExpenseDao {
                     .setParameter("carId", carId)
                     .setParameter("category", category)
                     .getResultList();
+
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "Failed to find expenses for car ID " + carId +
+                            " and category '" + category + "': " + e.getMessage()
+            );
+            throw e;
         } finally {
             em.close();
         }
@@ -106,14 +130,21 @@ public class ExpenseDao {
 
         try {
             Double total = em.createQuery(
-                            "SELECT COALESCE(SUM(e.amount), 0) " +
-                                    "FROM Expense e WHERE e.car.id = :carId",
+                            "select coalesce(sum(e.amount), 0) " +
+                                    "from Expense e where e.car.id = :carId",
                             Double.class
                     )
                     .setParameter("carId", carId)
                     .getSingleResult();
 
-            return total;
+            return total != null ? total : 0.0;
+
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "Failed to retrieve total expenses for car ID "
+                            + carId + ": " + e.getMessage()
+            );
+            throw e;
         } finally {
             em.close();
         }
@@ -124,6 +155,10 @@ public class ExpenseDao {
 
         try {
             em.getTransaction().begin();
+
+            if (expense == null) {
+                throw new NotFoundResponse("Expense not found ");
+            }
 
             Expense updatedExpense = em.merge(expense);
 
@@ -148,8 +183,9 @@ public class ExpenseDao {
 
             Expense expense = em.find(Expense.class, id);
 
-            if (expense != null) {
-                em.remove(expense);
+
+            if (expense == null) {
+                throw new NotFoundResponse("Expense not found with ID: " + id);
             }
 
             em.getTransaction().commit();

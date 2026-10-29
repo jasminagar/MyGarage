@@ -5,8 +5,7 @@ import app.dto.ExpenseUpdateDTO;
 import app.dto.UserDTO;
 import app.entities.Expense;
 import io.javalin.apibuilder.EndpointGroup;
-import io.javalin.http.Context;
-import io.javalin.http.UnauthorizedResponse;
+import io.javalin.http.*;
 import app.security.EnumRoles;
 import app.services.ExpenseSecurityService;
 
@@ -37,40 +36,56 @@ public class ExpenseController {
         };
     }
 
+
     private void createExpense(Context context) {
         Integer carId;
 
         try {
             carId = Integer.parseInt(context.pathParam("carId"));
         } catch (NumberFormatException e) {
-            throw new io.javalin.http.BadRequestResponse("Invalid car ID");
+            throw new BadRequestResponse("Invalid car ID");
+        }
+
+        if (carId <= 0) {
+            throw new BadRequestResponse("Car ID must be greater than 0");
         }
 
         UserDTO tokenUser = context.attribute("user");
+
         if (tokenUser == null) {
             throw new UnauthorizedResponse("User is not authenticated");
         }
 
         Expense expense = context.bodyAsClass(Expense.class);
 
-        boolean isAdmin = tokenUser.getRoles().contains(EnumRoles.ADMIN);
+        if (expense.getAmount() < 0) {
+            throw new BadRequestResponse("Expense amount cannot be negative");
+        }
+
+        boolean isAdmin =
+                tokenUser.getRoles().contains(EnumRoles.ADMIN);
 
         Expense createdExpense = securityService.createExpenseForUser(
-                carId, tokenUser.getUsername(), isAdmin, expense
+                carId,
+                tokenUser.getUsername(),
+                isAdmin,
+                expense
         );
-
-        if (createdExpense == null) {
-            throw new io.javalin.http.NotFoundResponse(
-                    "Car not found or access denied"
-            );
-        }
 
         context.status(201).json(createdExpense);
     }
 
+
     private void getAllExpenses(Context context) {
-        List<Expense> expenses = expenseDao.findAllExpenses();
-        context.json(expenses);
+        try {
+            List<Expense> expenses = expenseDao.findAllExpenses();
+            context.status(200).json(expenses);
+        } catch (Exception e) {
+            System.err.println("Error retrieving expenses: " + e.getMessage());
+            throw new InternalServerErrorResponse(
+                    "Unable to retrieve expenses"
+            );
+        }
     }
 
     private void getExpenseById(Context context) {
@@ -79,13 +94,13 @@ public class ExpenseController {
         try {
             id = Integer.parseInt(context.pathParam("id"));
         } catch (NumberFormatException e) {
-            throw new io.javalin.http.BadRequestResponse("Invalid expense ID");
+            throw new BadRequestResponse("Invalid expense ID");
         }
 
         Expense expense = expenseDao.findExpenseById(id);
 
         if (expense == null) {
-            throw new io.javalin.http.NotFoundResponse("Expense not found");
+            throw new NotFoundResponse("Expense not found");
         }
 
         context.json(expense);
@@ -97,8 +112,13 @@ public class ExpenseController {
         try {
             carId = Integer.parseInt(context.pathParam("carId"));
         } catch (NumberFormatException e) {
-            throw new io.javalin.http.BadRequestResponse("Invalid car ID");
+            throw new BadRequestResponse("Invalid car ID");
         }
+
+        if (carId <= 0) {
+            throw new BadRequestResponse("Car ID must be greater than 0");
+        }
+
 
         List<Expense> expenses = expenseDao.findExpenseByCarId(carId);
         context.json(expenses);
@@ -110,17 +130,21 @@ public class ExpenseController {
         try {
             carId = Integer.parseInt(context.pathParam("carId"));
         } catch (NumberFormatException e) {
-            throw new io.javalin.http.BadRequestResponse("Invalid car ID");
+            throw new BadRequestResponse("Invalid car ID");
+        }
+
+
+        if (carId <= 0) {
+            throw new BadRequestResponse("Car ID must be greater than 0");
         }
 
         String category = context.pathParam("category");
 
         if (category == null || category.isBlank()) {
-            throw new io.javalin.http.BadRequestResponse("Category is required");
+            throw new BadRequestResponse("Category is required");
         }
 
-        List<Expense> expenses =
-                expenseDao.findExpenseByCarIdAndCategory(carId, category);
+        List<Expense> expenses = expenseDao.findExpenseByCarIdAndCategory(carId, category);
 
         context.json(expenses);
     }
@@ -131,11 +155,15 @@ public class ExpenseController {
         try {
             carId = Integer.parseInt(context.pathParam("carId"));
         } catch (NumberFormatException e) {
-            throw new io.javalin.http.BadRequestResponse("Invalid car ID");
+            throw new BadRequestResponse("Invalid car ID");
+        }
+
+        if (carId <= 0) {
+            throw new BadRequestResponse("Car ID must be greater than 0");
         }
 
         double total = expenseDao.getTotalExpensesForCar(carId);
-        context.json(total);
+        context.status(200).json(total);
     }
 
     private void updateExpense(Context context) {
@@ -146,7 +174,7 @@ public class ExpenseController {
             carId = Integer.parseInt(context.pathParam("carId"));
             expenseId = Integer.parseInt(context.pathParam("id"));
         } catch (NumberFormatException e) {
-            throw new io.javalin.http.BadRequestResponse("Invalid car ID or expense ID");
+            throw new BadRequestResponse("Invalid car ID or expense ID");
         }
 
         UserDTO tokenUser = context.attribute("user");
@@ -168,7 +196,7 @@ public class ExpenseController {
         );
 
         if (updatedExpense == null) {
-            throw new io.javalin.http.NotFoundResponse(
+            throw new NotFoundResponse(
                     "Expense not found or access denied"
             );
         }
@@ -182,7 +210,7 @@ public class ExpenseController {
         try {
             id = Integer.parseInt(context.pathParam("id"));
         } catch (NumberFormatException e) {
-            throw new io.javalin.http.BadRequestResponse("Invalid expense ID");
+            throw new BadRequestResponse("Invalid expense ID");
         }
 
         UserDTO tokenUser = context.attribute("user");
@@ -200,7 +228,7 @@ public class ExpenseController {
         );
 
         if (!deleted) {
-            throw new io.javalin.http.NotFoundResponse(
+            throw new NotFoundResponse(
                     "Expense not found or access denied"
             );
         }

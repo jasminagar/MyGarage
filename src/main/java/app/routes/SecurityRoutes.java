@@ -16,6 +16,7 @@ public class SecurityRoutes {
         return () -> {
             path("/auth", () -> {
                 get("/healthcheck", securityController::healthCheck);
+                get("/", ctx -> {ctx.status(200);ctx.contentType("text/plain");ctx.result("Welcome to MyGarage API!");});
                 post("/login", securityController::login);
                 post("/register", securityController::register);
             });

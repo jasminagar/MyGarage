@@ -28,28 +28,29 @@ public class CarImportController {
     }
 
     private void importVehicle(Context context) {
-        try {
-            String registrationNumber = context.pathParam("registrationNumber");
-            UserDTO tokenUser = context.attribute("user");
+        String registrationNumber = context.pathParam("registrationNumber");
 
-            if (tokenUser == null) {
-                throw new UnauthorizedResponse("User is not authenticated");
-            }
+        UserDTO tokenUser = context.attribute("user");
 
-            User user = userDao.findUserByUsername(tokenUser.getUsername());
-
-            Car importedCar = importVehicleService.importVehicle(
-                    registrationNumber, user
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse(
+                    "User is not authenticated"
             );
-
-            context.status(201);
-            context.json(importedCar);
-
-        } catch (UnauthorizedResponse e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
+
+        User user = userDao.findUserByUsername(tokenUser.getUsername());
+
+        if (user == null) {
+            throw new UnauthorizedResponse(
+                    "Authenticated user no longer exists"
+            );
+        }
+
+        Car importedCar = importVehicleService.importVehicle(
+                registrationNumber,
+                user
+        );
+
+        context.status(201).json(importedCar);
     }
 }
