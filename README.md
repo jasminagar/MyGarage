@@ -78,7 +78,7 @@ The diagram shows the main responsibilities and request flow. It is a conceptual
 
 **REST API with Javalin**
 
-avalin provides a lightweight way to define HTTP routes and expose backend functionality through a REST API. Separating the API from the client allows the backend to be developed and tested independently. HTTP methods communicate the intended operation, while resource-oriented URLs provide a consistent interface for clients and tools such as Postman and REST Assured.
+Javalin provides a lightweight way to define HTTP routes and expose backend functionality through a REST API. Separating the API from the client allows the backend to be developed and tested independently. HTTP methods communicate the intended operation, while resource-oriented URLs provide a consistent interface for clients and tools such as Postman and REST Assured.
 
 **Persistence with JPA and Hibernate**
 
@@ -102,16 +102,16 @@ Automated testing was included to verify the behaviour of the application at dif
 
 ## Data Model
 
-The database separates users, vehicles and the different types of vehicle-related records. The main entities are User, Role, Vehicle, ServiceRecord, Expense and Modification.
+The database separates users, vehicles and the different types of vehicle-related records. The main entities are User, Role, Vehicle, inspection, Expense and Modification.
 - A User represents an account and is associated with the vehicles that user owns.
 - A Role represents an authorization role used when determining which operations a user may perform.
 - A Vehicle stores the core information about a vehicle and is associated with its owner.
-- A ServiceRecord stores a service or maintenance entry associated with a vehicle.
+- An InspectionRecord stores an inspection or maintenance entry associated with a vehicle.
 - An Expense stores a cost associated with a vehicle.
 - A Modification stores information about a change made to a vehicle.
-A user can own multiple vehicles. A vehicle can have multiple service records, expenses and modifications. Keeping these record types separate avoids repeating the vehicle's core information in every related record. Instead, related records refer to the relevant vehicle through database relationships.
+A user can own multiple vehicles. A vehicle can have multiple inspection records, expenses and modifications. Keeping these record types separate avoids repeating the vehicle's core information in every related record. Instead, related records refer to the relevant vehicle through database relationships.
 
-This structure supports a normalized relational model: each entity has a defined responsibility, and vehicle information is maintained in one place rather than copied into every service, expense or modification record. Primary keys identify records, while foreign keys maintain relationships between them. Database constraints help prevent records from referring to parent records that do not exist.
+This structure supports a normalized relational model: each entity has a defined responsibility, and vehicle information is maintained in one place rather than copied into every inspection, expense or modification record. Primary keys identify records, while foreign keys maintain relationships between them. Database constraints help prevent records from referring to parent records that do not exist.
 
 Authorization is related to, but separate from, the database relationships. A valid relationship between a user and a vehicle does not by itself authorize every request. The backend must check the requesting user's permissions and, where applicable, verify that the user owns the vehicle associated with the requested record.
 
