@@ -3,6 +3,7 @@ package app.dao;
 import app.config.HibernateConfig;
 import app.entities.Car;
 import app.entities.Expense;
+import io.javalin.http.NotFoundResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,6 +15,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Testcontainers
 public class ExpenseDAOTest {
@@ -85,9 +87,10 @@ public class ExpenseDAOTest {
         expense.setCategory("Fuel");
         expense.setAmount(500.0);
 
-        Expense created = expenseDao.createExpense(-1, expense);
-
-        assertThat(created, is(nullValue()));
+        assertThrows(
+                NotFoundResponse.class,
+                () -> expenseDao.createExpense(-1, expense)
+        );
     }
 
     @Test

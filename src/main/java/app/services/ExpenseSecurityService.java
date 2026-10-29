@@ -25,6 +25,26 @@ public class ExpenseSecurityService {
         this.service = service;
     }
 
+    public Double getTotalExpense(Integer carId, String username, boolean isAdmin){
+        Car car = carDao.findCarById(carId);
+        if (car == null) {
+            throw new NotFoundResponse(
+                    "Car not found with ID: " + carId
+            );
+        }
+
+        if (!isAdmin){
+            Car ownedCar = service.findCarForUser(carId, username);
+            if (ownedCar == null) {
+                throw new ForbiddenResponse(
+                        "You do not have access to car ID: " + carId
+                );
+            }
+        }
+
+        return expenseDao.getTotalExpensesForCar(carId);
+    }
+
 
     public Expense createExpenseForUser(
             Integer carId,
@@ -111,8 +131,6 @@ public class ExpenseSecurityService {
         return expenseDao.updateExpense(expense);
     }
 
-
-
     public boolean deleteExpenseForCar(
             Integer expenseId,
             String username,
@@ -149,5 +167,4 @@ public class ExpenseSecurityService {
         expenseDao.deleteExpense(expenseId);
         return true;
     }
-
 }

@@ -71,7 +71,7 @@ public class SecurityController {
             userDTO = ctx.bodyAsClass(UserDTO.class);
         } catch (Exception e) {
             logger.warn("Registration failed: invalid request body");
-            throw new io.javalin.http.BadRequestResponse(
+            throw new BadRequestResponse(
                     "Invalid request body"
             );
         }

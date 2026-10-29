@@ -101,7 +101,6 @@ public class ApplicationConfig {
         Javalin app = Javalin.create(ApplicationConfig::configuration);
         app.beforeMatched(authenticate::authenticate);
         app.beforeMatched(authorize::authorize);
-//        app.get("/", ctx -> ctx.result("Welcome"));
         app.start(port);
 
         return app;

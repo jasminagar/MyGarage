@@ -36,7 +36,6 @@ public class ExpenseController {
         };
     }
 
-
     private void createExpense(Context context) {
         Integer carId;
 
@@ -162,7 +161,14 @@ public class ExpenseController {
             throw new BadRequestResponse("Car ID must be greater than 0");
         }
 
-        double total = expenseDao.getTotalExpensesForCar(carId);
+        UserDTO tokenUser = context.attribute("user");
+        if (tokenUser == null) {
+            throw new UnauthorizedResponse("User is not authenticated");
+        }
+
+        boolean isAdmin = tokenUser.getRoles().contains(EnumRoles.ADMIN);
+
+        Double total = securityService.getTotalExpense(carId, tokenUser.getUsername(), isAdmin);
         context.status(200).json(total);
     }
 

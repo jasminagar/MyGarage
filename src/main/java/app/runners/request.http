@@ -3,7 +3,7 @@ POST http://localhost:7070/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "username": "bob3",
+  "username": "bob10",
   "password": "1234"
 }
 
@@ -16,7 +16,7 @@ POST http://localhost:7070/api/v1/auth/register
 Content-Type: application/json
 
 {
-  "username": "bob800",
+  "username": "bob890",
   "password": "1234"
 }
 
@@ -46,7 +46,7 @@ Content-Type: application/json
 }
 
 ### PUT update expense for car
-PUT http://localhost:7070/api/v1/expenses/car/60/update/100
+PUT http://localhost:7070/api/v1/expenses/car/60/update/10
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -76,7 +76,6 @@ Content-Type: application/json
 GET http://localhost:7070/api/v1/expenses/car/60/total
 Authorization: Bearer {{token}}
 Content-Type: application/json
-
 
 ### GET health check
 GET http://165.245.241.134:7070/api/v1/auth/healthcheck

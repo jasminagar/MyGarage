@@ -125,7 +125,7 @@ public class ExpenseDao {
         }
     }
 
-    public double getTotalExpensesForCar(Integer carId) {
+    public Double getTotalExpensesForCar(Integer carId) {
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -188,6 +188,7 @@ public class ExpenseDao {
                 throw new NotFoundResponse("Expense not found with ID: " + id);
             }
 
+            em.remove(expense);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {

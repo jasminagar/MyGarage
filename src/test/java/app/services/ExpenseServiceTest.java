@@ -3,6 +3,8 @@ package app.services;
 import app.entities.Car;
 import app.entities.Expense;
 import app.dao.ExpenseDao;
+import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.NotFoundResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,13 +43,14 @@ class ExpenseServiceTest {
     }
 
     @Test
-    void deleteReturnsFalseWhenExpenseDoesNotExist() {
+    void deleteReturnsNotFoundWhenExpenseDoesNotExist() {
         when(expenseDao.findExpenseById(1)).thenReturn(null);
 
-        boolean result =
-                expenseService.deleteExpenseForCar(1, "alice", false);
+        assertThrows(
+                NotFoundResponse.class,
+                () -> expenseService.deleteExpenseForCar(1, "alice", false)
+        );
 
-        assertThat(result, is(false));
         verify(expenseDao, never()).deleteExpense(anyInt());
         verifyNoInteractions(securityService);
     }
@@ -81,10 +85,11 @@ class ExpenseServiceTest {
         when(expenseDao.findExpenseById(1)).thenReturn(expense);
         when(securityService.findCarForUser(10, "alice")).thenReturn(null);
 
-        boolean result =
-                expenseService.deleteExpenseForCar(1, "alice", false);
+        assertThrows(
+                ForbiddenResponse.class,
+                () -> expenseService.deleteExpenseForCar(1, "alice", false)
+        );
 
-        assertThat(result, is(false));
         verify(expenseDao, never()).deleteExpense(anyInt());
     }
 }

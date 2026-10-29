@@ -20,7 +20,7 @@ public class Expense {
 
     private LocalDate date;
     private String category;
-    private double amount;
+    private Double amount;
     private String description;
 
     @ManyToOne

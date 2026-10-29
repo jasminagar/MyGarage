@@ -5,48 +5,44 @@ import java.util.Properties;
 
 public class AppConfig {
 
+    private final Properties properties = new Properties();
+    private final boolean deployed;
+
     public AppConfig() {
+        this.deployed = System.getenv("DEPLOYED") != null;
+
+        if (!deployed) {
+            try (InputStream input = getClass()
+                    .getClassLoader()
+                    .getResourceAsStream("config.properties")) {
+
+                if (input == null) {
+                    throw new IllegalStateException(
+                            "config.properties was not found"
+                    );
+                }
+
+                properties.load(input);
+
+            } catch (java.io.IOException e) {
+                throw new IllegalStateException(
+                        "Could not read config.properties", e
+                );
+            }
+        }
     }
 
     public String getSetting(String key) {
-        if (System.getenv("DEPLOYED") != null) {
-            String value = System.getenv(key);
+        String value = deployed
+                ? System.getenv(key)
+                : properties.getProperty(key);
 
-            if (value == null || value.isBlank()) {
-                throw new IllegalStateException(
-                        "Missing environment variable: " + key
-                );
-            }
-
-            return value;
-        }
-
-        try (InputStream input = getClass().getClassLoader()
-                .getResourceAsStream("config.properties")) {
-
-            if (input == null) {
-                throw new IllegalStateException(
-                        "app.config.properties was not found"
-                );
-            }
-
-            Properties properties = new Properties();
-            properties.load(input);
-
-            String value = properties.getProperty(key);
-
-            if (value == null || value.isBlank()) {
-                throw new IllegalStateException(
-                        "Missing setting in app.config.properties: " + key
-                );
-            }
-
-            return value;
-
-        } catch (java.io.IOException e) {
+        if (value == null || value.isBlank()) {
             throw new IllegalStateException(
-                    "Could not read app.config.properties", e
+                    "Missing configuration setting: " + key
             );
         }
+
+        return value;
     }
 }

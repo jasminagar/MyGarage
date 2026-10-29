@@ -70,6 +70,15 @@ MyGarage separates HTTP handling, application logic, persistence and external AP
                    v
                PostgreSQL
 
+```mermaid
+flowchart TD
+A[Client] --> B[Javalin REST API]
+B --> C[Authentication & Security<br/>JWT, Roles and Ownership]
+C --> D[Application Logic]
+D --> E[Hibernate / JPA]
+E --> F[(PostgreSQL)]
+D --> G[MotorAPI]
+```
 
 The diagram shows the main responsibilities and request flow. It is a conceptual overview rather than a class-by-class representation of the codebase.
 
