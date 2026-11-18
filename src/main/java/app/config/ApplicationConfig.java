@@ -36,7 +36,10 @@ public class ApplicationConfig {
         config.router.contextPath = "/api/v1";
         config.http.defaultContentType = "application/json";
         config.router.apiBuilder(routes.getRoutes());
-
+        config.bundledPlugins.enableCors(cors ->
+                cors.addRule(it ->{
+                    it.allowHost("http://localhost:5173");
+                }));
     }
     public static Javalin startServer(int port) {
         userDao = new UserDao();
