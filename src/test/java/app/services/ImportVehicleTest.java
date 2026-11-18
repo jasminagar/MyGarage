@@ -40,6 +40,7 @@ class ImportVehicleTest {
                 .extract()
                 .path("token");
 
+
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()

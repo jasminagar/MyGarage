@@ -45,7 +45,6 @@ public class ExpenseSecurityService {
         return expenseDao.getTotalExpensesForCar(carId);
     }
 
-
     public Expense createExpenseForUser(
             Integer carId,
             String username,

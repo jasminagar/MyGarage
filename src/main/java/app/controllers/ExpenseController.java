@@ -61,8 +61,7 @@ public class ExpenseController {
             throw new BadRequestResponse("Expense amount cannot be negative");
         }
 
-        boolean isAdmin =
-                tokenUser.getRoles().contains(EnumRoles.ADMIN);
+        boolean isAdmin = tokenUser.getRoles().contains(EnumRoles.ADMIN);
 
         Expense createdExpense = securityService.createExpenseForUser(
                 carId,
