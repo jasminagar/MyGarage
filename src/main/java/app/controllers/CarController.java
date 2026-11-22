@@ -14,8 +14,6 @@ import app.services.CarSecurityService;
 import jakarta.persistence.NoResultException;
 
 import java.util.List;
-
-import static app.config.ApplicationConfig.userDao;
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class CarController {
