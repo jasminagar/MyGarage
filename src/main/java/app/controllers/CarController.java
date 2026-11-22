@@ -30,7 +30,7 @@ public class CarController {
         return () -> {
             get("/cars", ctx -> getAllCars(ctx), EnumRoles.ADMIN);
             get("/cars/{carId}", ctx -> getCarById(ctx), EnumRoles.ADMIN);
-            get("/cars/{userId}", ctx -> getAllCarsForUser(ctx), EnumRoles.ADMIN, EnumRoles.USER);
+            get("/cars/{userId}/cars", ctx -> getAllCarsForUser(ctx), EnumRoles.ADMIN, EnumRoles.USER);
             put("/cars/update/{carId}", ctx -> updateCar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
             delete("/cars/delete/{carId}", ctx -> deletecar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
         };
