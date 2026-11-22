@@ -1,3 +1,3 @@
-POST http://localhost:7070/api/v1/service-records/import/EC74058
-Authorization: Bearer eyJhbGciOiJIUzI1iIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJNeUdhcmFnZSIsInN1YiI6ImJvYjIwMCIsInJvbGVzIjpbIlVTRVIiXSwiaWF0IjoxNzkzNzgzMjgzLCJleHAiOjE3OTM3ODY4ODN9.HxRw-yGxafnxOF9TS-Tpzj8E_S7eaxaetnwfZWaOvD8
+POST http://165.245.241.134:7070/api/v1/service-records/import/EC74058
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJNeUdhcmFnZSIsInN1YiI6Imphc21pbiIsInJvbGVzIjpbIlVTRVIiXSwiaWF0IjoxNzk1MDA3MzYzLCJleHAiOjE3OTUwMDczODF9.4TJ282RR_r_eYIbkbDVn21I50q_vL5TR_1mf5pc7niA
 Content-Type: application/json

@@ -51,6 +51,7 @@ public class CarDao {
         }
     }
 
+
     public Car findCarById(Integer id) {
         EntityManager em = emf.createEntityManager();
 

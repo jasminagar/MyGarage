@@ -30,9 +30,20 @@ public class CarController {
         return () -> {
             get("/cars", ctx -> getAllCars(ctx), EnumRoles.ADMIN);
             get("/cars/{carId}", ctx -> getCarById(ctx), EnumRoles.ADMIN);
+            get("/cars/{userId}", ctx -> getAllCarsForUser(ctx), EnumRoles.ADMIN, EnumRoles.USER);
             put("/cars/update/{carId}", ctx -> updateCar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
             delete("/cars/delete/{carId}", ctx -> deletecar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
         };
+    }
+
+    private void getAllCarsForUser(Context context){
+        try{
+            Integer userId = Integer.parseInt(context.pathParam("userId"));
+            List<Car> allCars = carDao.findCarByUserId(userId);
+            context.json(allCars);
+        } catch (Exception e){
+            context.status(200);
+        }
     }
 
     private void getAllCars(Context ctx) {
