@@ -5,14 +5,17 @@ import app.dao.UserDao;
 import app.dto.CarUpdateDTO;
 import app.dto.UserDTO;
 import app.entities.Car;
+import app.entities.User;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
 import app.security.EnumRoles;
 import app.services.CarSecurityService;
+import jakarta.persistence.NoResultException;
 
 import java.util.List;
 
+import static app.config.ApplicationConfig.userDao;
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class CarController {
@@ -30,19 +33,31 @@ public class CarController {
         return () -> {
             get("/cars", ctx -> getAllCars(ctx), EnumRoles.ADMIN);
             get("/cars/{carId}", ctx -> getCarById(ctx), EnumRoles.ADMIN);
-            get("/cars/{userId}/cars", ctx -> getAllCarsForUser(ctx), EnumRoles.ADMIN, EnumRoles.USER);
+            get("/cars/user/{username}", ctx -> getAllCarsForUser(ctx), EnumRoles.ADMIN, EnumRoles.USER);
             put("/cars/update/{carId}", ctx -> updateCar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
             delete("/cars/delete/{carId}", ctx -> deletecar(ctx), EnumRoles.USER, EnumRoles.ADMIN);
         };
     }
 
-    private void getAllCarsForUser(Context context){
-        try{
-            Integer userId = Integer.parseInt(context.pathParam("userId"));
-            List<Car> allCars = carDao.findCarByUserId(userId);
-            context.json(allCars);
-        } catch (Exception e){
+
+    private void getAllCarsForUser(Context context) {
+        try {
+            String username = context.pathParam("username");
+
+            User user = carDao.findUserByUsername(username);
+
+            List<Car> allCars = carDao.findCarByUserId(user.getId());
+
             context.status(200);
+            context.json(allCars);
+
+        } catch (NoResultException e) {
+            context.status(404);
+            context.json("User not found");
+
+        } catch (Exception e) {
+            context.status(500);
+            context.json("Could not retrieve cars for user");
         }
     }
 

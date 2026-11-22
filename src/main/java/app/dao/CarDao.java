@@ -2,6 +2,7 @@ package app.dao;
 
 import app.config.HibernateConfig;
 import app.entities.Car;
+import app.entities.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
@@ -10,6 +11,33 @@ import java.util.List;
 
 public class CarDao {
     EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
+
+
+    public User findUserByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            return em.createQuery(
+                            "SELECT u FROM User u WHERE u.username = :username",
+                            User.class
+                    ).setParameter("username", username)
+                    .getSingleResult();
+
+        } catch (NoResultException e) {
+            return null;
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "Failed to find user by username: " + e.getMessage()
+            );
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 
     public Car createCar(Car car) {
         EntityManager em = emf.createEntityManager();
